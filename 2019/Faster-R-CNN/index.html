@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+  <title>Faster R-CNN | MapleFlying</title>
+  <meta name="keywords" content=" Object Detection ">
+  <meta name="description" content="Faster R-CNN | MapleFlying">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="@[toc] Declaration此为个人原创的选译笔记，仅供参考。  原载于：Faster R-CNN 选译自：Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks  3. Region Proposal NetworksRPN 读入一张任意大小的照片，输出一批 rectangular ob">
+<meta name="keywords" content="Object Detection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Faster R-CNN">
+<meta property="og:url" content="https://shzhao17.github.io/2019/Faster-R-CNN/index.html">
+<meta property="og:site_name" content="MapleFlying">
+<meta property="og:description" content="@[toc] Declaration此为个人原创的选译笔记，仅供参考。  原载于：Faster R-CNN 选译自：Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks  3. Region Proposal NetworksRPN 读入一张任意大小的照片，输出一批 rectangular ob">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2019-09-29T09:14:42.714Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Faster R-CNN">
+<meta name="twitter:description" content="@[toc] Declaration此为个人原创的选译笔记，仅供参考。  原载于：Faster R-CNN 选译自：Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks  3. Region Proposal NetworksRPN 读入一张任意大小的照片，输出一批 rectangular ob">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.0.1" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.0.1" rel="stylesheet">
+
+<link href="//cdn.bootcss.com/animate.css/3.5.2/animate.min.css" rel="stylesheet">
+<link href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="/js/jquery.autocomplete.min.js?v=1.0.1"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.bootcss.com/nprogress/0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+
+<script src="/js/iconfont.js?v=1.0.1"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="false">
+  <input class="theme_blog_path" value>
+</div>
+
+<body>
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><aside class="nav">
+    <div class="nav-left">
+        <a href="/" class="avatar_target">
+    <img class="avatar" src="/img/avatar.jpg" />
+</a>
+<div class="author">
+    <span>MapleFlying</span>
+</div>
+
+<div class="icon">
+    
+        
+    
+        
+        <a title="github" href="https://github.com/shzhao17" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-github"></use>
+                </svg>
+            
+        </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+</div>
+
+
+
+
+<ul>
+    <li><div class="all active">Articles<small>(3)</small></div></li>
+    
+        
+            
+            <li><div data-rel="Machine">Machine<small>(3)</small></div>
+                
+            </li>
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+    
+    </div>
+    <div></div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="3">
+<input type="hidden" id="yelog_site_word_count" value="5.5k">
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="back-title-list"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <form onkeydown="if(event.keyCode==13){return false;}">
+        <input class="search" type="text" placeholder="Search..." autocomplete="off"id="local-search-input" >
+        <i class="cross"></i>
+        <span>
+            <label for="tagswitch">Tags:</label>
+            <input id="tagswitch" type="checkbox" style="display: none" />
+            <i id="tagsWitchIcon"></i>
+        </span>
+    </form>
+    <div class="tags-list">
+    
+    <li class="article-tag-list-item">
+        <a href="javascript:" class="color2">Object Detection</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a href="javascript:" class="color4">Glossary</a>
+    </li>
+    
+    <div class="clearfix"></div>
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        <a  class="Machine "
+           href="/2019/Faster-R-CNN/"
+           data-tag="Object Detection"
+           data-author="" >
+            <span class="post-title" title="Faster R-CNN">Faster R-CNN</span>
+            <span class="post-date" title="2019-09-22">2019-09-22</span>
+        </a>
+        
+        <a  class="Machine "
+           href="/2019/Glossary/"
+           data-tag="Glossary"
+           data-author="" >
+            <span class="post-title" title="Glossary">Glossary</span>
+            <span class="post-date" title="2019-09-22">2019-09-22</span>
+        </a>
+        
+        <a  class="Machine "
+           href="/2019/Fast-R-CNN/"
+           data-tag="Object Detection"
+           data-author="" >
+            <span class="post-title" title="Fast R-CNN">Fast R-CNN</span>
+            <span class="post-date" title="2019-09-22">2019-09-22</span>
+        </a>
+        
+    </nav>
+</div>
+    </div>
+    <div class="hide-list">
+        <div class="semicircle">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div class="post">
+    <div class="pjax">
+        <article id="post-Faster-R-CNN" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">Faster R-CNN</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            
+                <a href="javascript:" data-rel="Machine">Machine</a>
+            
+        </span>
+        
+        
+        <span class="tag">
+            
+            <a href="javascript:" class="color2">Object Detection</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+        创建时间:<time class="date" title='更新时间: 2019-09-29'>2019-09-22</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        <span>字数:2.7k</span>
+        
+        
+        <span id="busuanzi_container_page_pv">
+            阅读:<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Declaration"><span class="toc-text">Declaration</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Region-Proposal-Networks"><span class="toc-text">3. Region Proposal Networks</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Translation-Invariant-Anchors"><span class="toc-text">Translation-Invariant Anchors</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#A-Loss-Function-for-Learning-Region-Proposals"><span class="toc-text">A Loss Function for Learning Region Proposals</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Optimization"><span class="toc-text">Optimization</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Sharing-Convolutional-Features-for-Region-Proposal-and-Object-Detection"><span class="toc-text">Sharing Convolutional Features for Region Proposal and Object Detection</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Implementation-Details"><span class="toc-text">Implementation Details</span></a></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><div class='inner-toc'><h1>Contents</h1><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Declaration"><span class="toc-text">Declaration</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Region-Proposal-Networks"><span class="toc-text">3. Region Proposal Networks</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Translation-Invariant-Anchors"><span class="toc-text">Translation-Invariant Anchors</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#A-Loss-Function-for-Learning-Region-Proposals"><span class="toc-text">A Loss Function for Learning Region Proposals</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Optimization"><span class="toc-text">Optimization</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Sharing-Convolutional-Features-for-Region-Proposal-and-Object-Detection"><span class="toc-text">Sharing Convolutional Features for Region Proposal and Object Detection</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Implementation-Details"><span class="toc-text">Implementation Details</span></a></li></ol></li></ol></div></p>
+<h1 id="Declaration"><a href="#Declaration" class="headerlink" title="Declaration"></a>Declaration</h1><p>此为个人原创的选译笔记，仅供参考。</p>
+<ul>
+<li>原载于：<a href="https://shzhao17.github.io/2019/Faster-R-CNN/">Faster R-CNN</a></li>
+<li>选译自：<a href="https://arxiv.org/abs/1506.01497" target="_blank" rel="noopener">Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks</a></li>
+</ul>
+<h1 id="3-Region-Proposal-Networks"><a href="#3-Region-Proposal-Networks" class="headerlink" title="3. Region Proposal Networks"></a>3. Region Proposal Networks</h1><p>RPN 读入一张任意大小的照片，输出一批 rectangular object proposals</p>
+<ul>
+<li>每个 object proposal 都有一个 objectness score</li>
+<li>objectness 衡量了被归类为某个 object class 而非 background 的可能性</li>
+<li>我们以 FCN 来建模这个过程，并在此章节加以说明</li>
+</ul>
+<p>我们的最终目的是与 Fast R-CNN object detection network 共享计算</p>
+<ul>
+<li>因此，我们假设这两个 network 共享同一套 conv layers</li>
+</ul>
+<p>我们通过实验考察了两个 model：</p>
+<ul>
+<li>ZF 有 5 个可共享的 conv layers</li>
+<li>VGG 有 13 个可共享的 conv layers</li>
+</ul>
+<p>我们在 conv feature map 上滑动一个 mini-network 以生成 region proposals</p>
+<ul>
+<li>这个 conv feature map 正是共享的最后一层 conv layer 的输出</li>
+</ul>
+<p>mini-network 总是与 conv feature map 上某个 $n \times n$ 的像素窗口 fully connected</p>
+<ul>
+<li>每个因滑动而不同的像素窗口（即，滑动窗口）都被映射成一个低维向量<ul>
+<li>ZF 是 256 维</li>
+<li>VGG 是 512 维</li>
+</ul>
+</li>
+<li>这个向量被送入两个 FC 层分支：<ul>
+<li>分支一用于 box regression，简写为 reg</li>
+<li>分支二用于 box classification，简写为 cls</li>
+</ul>
+</li>
+<li>本文采用了 n = 3，并指出 effective receptive field（对 input image 而言）仍是大的<ul>
+<li>ZF 有 171 pixels</li>
+<li>VGG 有 228 pixels</li>
+</ul>
+</li>
+</ul>
+<p>因为像素窗口形成于 mini-network 的滑动</p>
+<ul>
+<li>所有的像素窗口都共享同一套 FC 层</li>
+<li>此架构可实现如下：<ul>
+<li>1 个 $n \times n$ 的 conv layer，再加上 2 个 $1 \times 1$ conv layers（分别用于 reg 与 cls）</li>
+<li>ReLU 层被用于处理 $n \times n$ 的 conv layer 的输出。</li>
+</ul>
+</li>
+</ul>
+<h2 id="Translation-Invariant-Anchors"><a href="#Translation-Invariant-Anchors" class="headerlink" title="Translation-Invariant Anchors"></a>Translation-Invariant Anchors</h2><p>对于每个滑动窗口，我们同时预测 $k$ 个 region proposals，因此：</p>
+<ul>
+<li>reg 层有 $4k$ 个输出，分别编码了 $k$ 个 boxes 的坐标</li>
+<li>cls 层输出 $2k$ 个 scores，分别衡量了 $k$ 个 proposal 属于 object / not-object 的可能性</li>
+<li>这 k 个 proposals 是相对于 $k$ 个 reference boxes（即，anchors）参数化而成的</li>
+</ul>
+<p>每个 anchor 都被置于当前滑动窗口的中心，其尺寸符合某种 scale 与 aspect ratio</p>
+<ul>
+<li>我们采用了 3 种 scales 与 3 种 aspect ratios，在每个滑动窗口处产生了 $k = 9$ 个 anchors</li>
+<li>对于一张 $W \times H$（约为 2400） 的 conv feature map，共有 $WHk$ 个 anchors</li>
+</ul>
+<p>我们的方法有个重要的特性是，它是 translation invariant 的</p>
+<ul>
+<li>就 anchors 而言</li>
+<li>也就计算相对于 anchors 的 proposal 的 functions 而言</li>
+</ul>
+<p>相比之下，MultiBox 方法使用 k-means 来生成 800 个 anchors，却不是 translation invariant</p>
+<ul>
+<li>当 object 在 image 里移动了位置，产生了 translation（位移）</li>
+<li>proposal 也应该相应地移动，而同一个 function 应该仍能预测出这些位置的 proposal</li>
+<li>因为 MultiBox 方法并非 translation invariant，它需要一个 $(4+1) \times 800$ 维的输出层</li>
+<li>而我们的方法只需要一个 $(4+2) \times 9$ 维的输出层</li>
+</ul>
+<p>我们 proposal 层的参数少了一个数量级，因此更不容易在小数据集（如 PASCAL VOC）上 overfit</p>
+<ul>
+<li>对比采用了 GoogLeNet 的 MultiBox 的 27M 个参数</li>
+<li>采用了 VGG-16 的 RPN 只需要 2.4M 个参数</li>
+</ul>
+<h2 id="A-Loss-Function-for-Learning-Region-Proposals"><a href="#A-Loss-Function-for-Learning-Region-Proposals" class="headerlink" title="A Loss Function for Learning Region Proposals"></a>A Loss Function for Learning Region Proposals</h2><p>训练 RPN 时，我们为每个 anchor 指定一个 binary class label，以指示它是否一个 object：</p>
+<ul>
+<li>我们为符合以下任一情况的 anchor 都指定了 positive label（即，是 object）：<ul>
+<li>对于每个 ground-truth box，与之 IoU 重叠率最高的 anchor(s) </li>
+<li>对于每个 ground-truth box，与之 IoU 重叠率高于 0.7 的 anchor(s)</li>
+<li>单个 ground-truth box 可能为多个 anchors 指定了 positive labels</li>
+</ul>
+</li>
+<li>如果某 anchor 与任意 ground-truth box 的 IoU 重叠率都低于 0.3，它有 negative label</li>
+<li>没有 label 的 anchors 将无助于 training</li>
+</ul>
+<p>根据上述定义，我们最小化如 Fast R-CNN 的 multi-task loss 的 objective function</p>
+<p>给定一张 image，我们的 loss function 定义如下：</p>
+<script type="math/tex; mode=display">
+L({p_i},{t_i}) = \frac{1}{N_{cls}} \sum_i L_{cls}(p_i, p_i^*) + \lambda \frac{1}{N_{reg}} \sum_i p_i^* L_{reg}(t_i,t_i^*)</script><p>此处，</p>
+<ul>
+<li>$i$ 是某 anchor 在 mini-batch 里的 index</li>
+<li>$p_i$ 是 anchor $i$ 是 object 的预测概率</li>
+<li>$p_i^\star$ 是 ground-truth label<ul>
+<li>$p_i^\star = 1$ 若 anchor $i$ 有 positive label</li>
+<li>$p_i^\ast = 0$ 若 anchor $i$ 有 negative label</li>
+</ul>
+</li>
+<li>$t_i$ 是预测的 bounding box 的 4 个参数化后的坐标向量</li>
+<li>$t_i^\star$ 是 anchor $i$ 对应的 ground-truth box，若它有 positive label</li>
+<li>$L_{cls}$ 是 classification loss，是两个类别（object vs. not object）的 log loss</li>
+<li>至于 regression loss，我们采用 $L_{reg}(t_i,t_i^\star)=R(t_i-t_i^\star)$<ul>
+<li>$R$ 是 robust loss function，即 $\text{smooth}_{L_1}(x)$</li>
+</ul>
+</li>
+<li>$p_i^\star L_{reg}$ 表示 regression loss<ul>
+<li>只对 positive anchor（$p_i^\star = 1$）有效</li>
+<li>且对 negative anchor（$p_i^\star = 0$）无效</li>
+</ul>
+</li>
+<li>cls 层与 reg 层的输出分别由 $\{p_i\}$ 与 $\{t_i\}$ 所组成<ul>
+<li>这两项被以 $N_{cls}$，$N_{reg}$，与一个平衡权重 $\lambda$ 来 normalize</li>
+</ul>
+</li>
+</ul>
+<p>对于 regression，我们对 4 个坐标采用以下参数化公式：</p>
+<script type="math/tex; mode=display">
+\begin{array}{}
+t_x = (x - x_a) / w_a & & t_x^\star = (x^\star - x_a) / w_a \\
+t_y = (y - y_a) / h_a & & t_y^\star = (y^\star - y_a) / h_a \\
+t_w = \log (w / w_a) & & t_w^\star = \log (w^\star / w_a) \\
+t_h = \log (h / h_a) & & t_h^\star = \log (h^\star / h_a)
+\end{array}</script><p>其中，</p>
+<ul>
+<li>$x$, $y$, $w$, $h$ 表示 box 的中心坐标、宽、高</li>
+<li>$(x,y,w,h)$, $(x_a,\cdots)$, $(x^\star,\cdots)$ 分别是 predicted box, anchor box, ground-truth box 的变量</li>
+<li>这可被认为是：基于 anchor box 生成的 bounding box 向附近 ground-truth box 的 regression</li>
+</ul>
+<p>然而，我们进行 bounding-box regression 的方式不同于之前基于 feature map 的方法</p>
+<ul>
+<li><p>在之前的方法里，bounding-box regression 是在从任意大小的 region 算出的 features 上进行的</p>
+</li>
+<li><p>regression weights 被所有不同大小的区域所共享</p>
+</li>
+</ul>
+<p>在我们的方法里，用于 regression 的 features 在 feature map 上有着同样的大小（$n \times n$）</p>
+<ul>
+<li><p>为了应对不同的大小，我们会学习出 $k$ 个 bounding-box regressors</p>
+</li>
+<li><p>每个 regressor 只负责一个 scale 与一个 aspect ratio</p>
+</li>
+<li><p>这 $k$ 个 regressors 之间并不共享 weights</p>
+</li>
+<li><p>因此，它仍能预测不同大小的 boxes，即使 features 有着固定的大小/尺寸</p>
+</li>
+</ul>
+<h2 id="Optimization"><a href="#Optimization" class="headerlink" title="Optimization"></a>Optimization</h2><p>RPN 被自然地实现为 FCN，并可以用 BP 与 SGD 来 end-to-end 地 train</p>
+<p>我们以 image-centric 的采样策略来 train 这个 network</p>
+<ul>
+<li>每批 mini-batch 来自于单张 image</li>
+<li>一张 image 包含了多个 positive anchors 与 negative anchors</li>
+</ul>
+<p>如果我们为所有 anchors 来 optimize 那些 loss functions，它会偏向 negative samples</p>
+<ul>
+<li>因为 negative samples 占了大多数，将会支配了我们的 optimization</li>
+</ul>
+<p>反之，我们在一张 image 里随机采样 256 个 anchors 来计算 mini-batch 的 loss function</p>
+<ul>
+<li><p>使得样本里 positive anchors 与 negative anchors 有着接近 1:1 的比例</p>
+</li>
+<li><p>若 image 里只有少于 128 个 positive anchors，我们为此 mini-batch 填充 negative anchors</p>
+</li>
+</ul>
+<p>为了随机地 initialize 所有 new layers，我们从 0 均值 与 0.01 标准差的高斯分布里采样 weights</p>
+<ul>
+<li>所有 other layers（共享的 conv layers）都是 initialize 与 pre-train 自 ImageNet classification</li>
+</ul>
+<p>我们调整了 ZF net 的所有层与 VGG conv3_1 及以上的层来节省内存</p>
+<p>我们为 60k mini-batches 采用了 0.001 的学习率</p>
+<ul>
+<li>而为接下来在 PASCAL 数据集的 20k mini-batches 采用了 0.0001 的学习率</li>
+</ul>
+<p>我们采用了 0.9 的 momentum 与 0.0005 的 weight decay</p>
+<p>我们的实现是基于 Caffe 的</p>
+<h2 id="Sharing-Convolutional-Features-for-Region-Proposal-and-Object-Detection"><a href="#Sharing-Convolutional-Features-for-Region-Proposal-and-Object-Detection" class="headerlink" title="Sharing Convolutional Features for Region Proposal and Object Detection"></a>Sharing Convolutional Features for Region Proposal and Object Detection</h2><p>至此，我们已经描述了如何为生成 region proposal 来 train 一个 network</p>
+<ul>
+<li><p>但还没有提到将利用这些 proposals 的 region-based object detection CNN</p>
+</li>
+<li><p>对于 detection network，我们采用 Fast R-CNN，并介绍一个算法来学习 conv layers</p>
+<ul>
+<li>这些 conv layers 将被 RPN 与 Fast R-CNN 所共享</li>
+</ul>
+</li>
+</ul>
+<p>RPN 与 Fast R-CNN 若是被分开独立地 train，将会以不同的方式来修改它们的 conv layers</p>
+<ul>
+<li>我们因此需要开发一套技术来允许两个 network 共享 conv layers，而非学习两个分开的 networks</li>
+<li>这不是简单定义单个 network 来包含 RPN 与 Fast R-CNN，再以 BP 来 jointly optimize 它</li>
+<li>原因是 Fast R-CNN 的 training 依赖于固定的 object proposals<ul>
+<li>目前仍不清楚的是，如果同时改变 proposal 的生成机制， Fast R-CNN 的学习会不会收敛</li>
+<li>这样的 joint optimizing 是 future work 的一个 interesting question</li>
+</ul>
+</li>
+</ul>
+<p>我们开发了实用的 4 步 training 算法来通过 alternating optimization 学习 shared features：</p>
+<ul>
+<li>第一步，如上所述地 train RPN<ul>
+<li>RPN network 被 initialize 自 ImageNet pre-trained model</li>
+<li>再针对 region proposal 的任务进行 end-to-end 地 fine-tune </li>
+</ul>
+</li>
+<li>第二步，通过 Fast R-CNN 来 train 另一个独立的 detection network<ul>
+<li>detection network 也是 initialize 自 ImageNet pre-trained model</li>
+<li>关键是，采用了第一步的 RPN 生成的 proposals</li>
+<li>此时，这两个 networks 并不共享 conv layers</li>
+</ul>
+</li>
+<li>第三步，采用 detection network 来初始化 RPN 的 training<ul>
+<li>但我们固定了 shared conv layers，只 fine-tune 专属于 RPN 的 layers</li>
+<li>现在这两个 networks 共享 conv layers</li>
+</ul>
+</li>
+<li>最后，在固定 shared conv layers 的同时，fine-tune 属于 Fast R-CNN 的 FC layers<ul>
+<li>如此一来，两个 networks 共享同样的 conv layers，并形成了统一的 network</li>
+</ul>
+</li>
+</ul>
+<h2 id="Implementation-Details"><a href="#Implementation-Details" class="headerlink" title="Implementation Details"></a>Implementation Details</h2><p>我们在 single-scale images 上 train 与 test 了 region proposal network 与 object detection network</p>
+<ul>
+<li>我们 re-scale 了这些 images，以使得它们的短边有 $s = 600$ 个 pixels<ul>
+<li>multi-scale feature extraction 可能增加 accuracy，但还没有好的 speed 与 accuracy 权衡</li>
+</ul>
+</li>
+<li>对于 ZF 与 VGG nets，最后的 conv layer 的 total stride 在 re-scaled image 上是 16 个 pixels<ul>
+<li>也就是说，若是在典型的 PASCAL image（$500 \times 375$）上，大约是 10 个 pixels</li>
+<li>即使是这么大的 stride，它依然有好的结果，虽然采用更小的 stride 可能会改进 accuracy</li>
+</ul>
+</li>
+</ul>
+<p>对于 anchors，我们</p>
+<ul>
+<li>选用了 3 个 scale，其 box area 分别是 $128^2$, $256^2$, $512^2$ 个 pixels</li>
+<li>选用了 3 个 aspect ratios，分别是 $1:1$，$1:2$，$2:1$.</li>
+</ul>
+<p>在预测 large proposals 的时候，算法允许采用那些大于 underlying receptive field 的 anchor boxes</p>
+<ul>
+<li><p>这样的预测不无可能，它仍能大致推断出 extent of object，即使只有 middle of object 是可见的</p>
+</li>
+<li><p>依此设计，我们并不需要 multi-scale features 或 multi-scale 滑动窗口来预测 large regions</p>
+</li>
+<li><p>这节省了大量的运行时间</p>
+</li>
+</ul>
+<p>那些 cross image boundaries 的 anchor boxes 需要被小心处理</p>
+<ul>
+<li>我们在 training 时忽略了所有 cross-boundary 的 anchors，因此它们并不会影响 loss<ul>
+<li>一张典型的 $1000 \times 600$ 的 image 大约有共 20k（$\approx 60 \times 40 \times 9$） 个 anchors</li>
+<li>忽略掉 cross-boundary anchors，每张 image 仍有大概 $6k$ 个 anchors 可用于 training</li>
+<li>如果它们没被忽略，将为 objective 带来巨大且难以纠正的错误项，training 也不会收敛</li>
+</ul>
+</li>
+<li>但在 testing 时，我们依然将 fully-convolutional RPN 应用于整张 image<ul>
+<li>这可能会产生 cross-boundary proposal boxes，但它们会被裁剪以贴合 image boundary</li>
+</ul>
+</li>
+</ul>
+<p>某些 RPN proposals 会彼此高度重叠</p>
+<ul>
+<li>为了降低冗余度，我们根据 proposal regions 的 cls score 对它们进行了 NMS<ul>
+<li>我们固定了 NMS 的 IoU threshold 为 0.7，使得每张 image 剩下约 $2k$ 个 proposal regions</li>
+<li>我们将展示，NMS 不会伤害最终的 detection accuracy，但会大幅降低 proposals 的数量</li>
+</ul>
+</li>
+<li>NMS 之后，我们用 top-N ranked proposal regions 来作检测</li>
+<li>接下来，我们用 $2k$ 个 RPN proposals 来 train Fast R-CNN<ul>
+<li>但在 test 时会试验不同数量的 proposals</li>
+</ul>
+</li>
+</ul>
+
+      
+       
+    </div>
+</article>
+
+
+<p></p>
+
+
+<div class="article_copyright">
+    <p><span class="copy-title">文章标题:</span>Faster R-CNN</p>
+    <p><span class="copy-title">文章字数:</span><span class="post-count">2.7k</span></p>
+    <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="MapleFlying">MapleFlying</a></p>
+    <p><span class="copy-title">发布时间:</span>2019-09-22</p>
+    <p><span class="copy-title">最后更新:</span>2019-09-29</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/2019/Faster-R-CNN/" title="Faster R-CNN">https://shzhao17.github.io/2019/Faster-R-CNN/</a>
+    <p>
+        <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+    </p>
+</div>
+
+
+
+
+
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript"
+        src="//cdn.bootcss.com/mathjax/2.7.6/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<input type="hidden" id="MathJax-js"
+        value="//cdn.bootcss.com/mathjax/2.7.6/MathJax.js?config=TeX-MML-AM_CHTML">
+</input>
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">©2019 shzhao17</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full"><span class="min "></span></button>
+<button class="post-toc-menu"><span class="post-toc-menu-icons"></span></button>
+<div class="post-toc"><span class="post-toc-title">目录</span>
+    <div class="post-toc-content">
+
+    </div>
+</div>
+<a class="" id="rocket" href="javascript:void(0)"></a>
+    </div>
+</div>
+<div class="acParent"></div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close" href="javascript:void(0)" onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+        </div>
+    </div>
+    <div class="shang_payselect">
+    </div>
+</div><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.0.1" ></script>
+
+<script src="/js/script.js?v=1.0.1" ></script>
+<script>
+    var img_resize = 'default';
+    /*作者、标签的自动补全*/
+    $(function () {
+        $('.search').AutoComplete({
+            'data': ['#Object Detection','#Glossary',],
+            'itemHeight': 20,
+            'width': 418
+        }).AutoComplete('show');
+    })
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $(".post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+        $('pre code').each(function(){
+            var lines = $(this).text().split('\n').length - 1, widther='';
+            if (lines>99) {
+                widther = 'widther'
+            }
+            var $numbering = $('<ul/>').addClass('pre-numbering ' + widther).attr("unselectable","on");
+            $(this).addClass('has-numbering ' + widther)
+                    .parent()
+                    .append($numbering);
+            for(var i=1;i<=lines;i++){
+                $numbering.append($('<li/>').text(i));
+            }
+        });
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<style>
+    pre{
+        position: relative;
+        margin-bottom: 24px;
+        border-radius: 10px;
+        border: 1px solid #e2dede;
+        background: #FFF;
+        overflow: hidden;
+    }
+    code.has-numbering{
+        margin-left: 30px;
+    }
+    code.has-numbering.widther{
+        margin-left: 35px;
+    }
+    .pre-numbering{
+        margin: 0px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 20px;
+        padding: 0.5em 3px 0.7em 5px;
+        border-right: 1px solid #C3CCD0;
+        text-align: right;
+        color: #AAA;
+        background-color: #fafafa;
+    }
+    .pre-numbering.widther {
+        width: 35px;
+    }
+</style>
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+        .nav .hide-list.fullscreen {
+            left: 492px
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+    .post .pjax article .article-entry>ol, .post .pjax article .article-entry>ul, .post .pjax article>ol, .post .pjax article>ul{
+        border: #e2dede solid 1px;
+        border-radius: 10px;
+        padding: 10px 32px 10px 56px;
+    }
+    .post .pjax article .article-entry li>ol, .post .pjax article .article-entry li>ul,.post .pjax article li>ol, .post .pjax article li>ul{
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+    .post .pjax article .article-entry>ol>li, .post .pjax article .article-entry>ul>li,.post .pjax article>ol>li, .post .pjax article>ul>li{
+        margin-bottom: auto;
+        margin-left: auto;
+    }
+    .post .pjax article .article-entry li>ol>li, .post .pjax article .article-entry li>ul>li,.post .pjax article li>ol>li, .post .pjax article li>ul>li{
+        margin-bottom: auto;
+        margin-left: auto;
+    }
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+    .nav-right:before {
+        content: ' ';
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.3;
+        background: url("https://i.loli.net/2019/07/22/5d3521411f3f169375.png");
+        background-repeat: no-repeat;
+        background-position: 50% 0;
+        -ms-background-size: cover;
+        -o-background-size: cover;
+        -moz-background-size: cover;
+        -webkit-background-size: cover;
+        background-size: cover;
+    }
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>

@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+  <title>Fast R-CNN | MapleFlying</title>
+  <meta name="keywords" content=" Object Detection ">
+  <meta name="description" content="Fast R-CNN | MapleFlying">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="@[toc] Declaration此为个人原创的选译笔记，仅供参考。  原载于：Faster R-CNN 选译自：Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks  3. Region Proposal NetworksRPN 读入一张任意大小的照片，输出一批 rectangular ob">
+<meta name="keywords" content="Object Detection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Faster R-CNN">
+<meta property="og:url" content="https://shzhao17.github.io/2019/Faster-R-CNN/index.html">
+<meta property="og:site_name" content="MapleFlying">
+<meta property="og:description" content="@[toc] Declaration此为个人原创的选译笔记，仅供参考。  原载于：Faster R-CNN 选译自：Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks  3. Region Proposal NetworksRPN 读入一张任意大小的照片，输出一批 rectangular ob">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2019-09-29T09:14:42.714Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Faster R-CNN">
+<meta name="twitter:description" content="@[toc] Declaration此为个人原创的选译笔记，仅供参考。  原载于：Faster R-CNN 选译自：Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks  3. Region Proposal NetworksRPN 读入一张任意大小的照片，输出一批 rectangular ob">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.0.1" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.0.1" rel="stylesheet">
+
+<link href="//cdn.bootcss.com/animate.css/3.5.2/animate.min.css" rel="stylesheet">
+<link href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="/js/jquery.autocomplete.min.js?v=1.0.1"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.bootcss.com/nprogress/0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+
+<script src="/js/iconfont.js?v=1.0.1"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="false">
+  <input class="theme_blog_path" value>
+</div>
+
+<body>
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><aside class="nav">
+    <div class="nav-left">
+        <a href="/" class="avatar_target">
+    <img class="avatar" src="/img/avatar.jpg" />
+</a>
+<div class="author">
+    <span>MapleFlying</span>
+</div>
+
+<div class="icon">
+    
+        
+    
+        
+        <a title="github" href="https://github.com/shzhao17" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-github"></use>
+                </svg>
+            
+        </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+</div>
+
+
+
+
+<ul>
+    <li><div class="all active">Articles<small>(3)</small></div></li>
+    
+        
+            
+            <li><div data-rel="Machine">Machine<small>(3)</small></div>
+                
+            </li>
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+    
+    </div>
+    <div></div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="3">
+<input type="hidden" id="yelog_site_word_count" value="5.5k">
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="back-title-list"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <form onkeydown="if(event.keyCode==13){return false;}">
+        <input class="search" type="text" placeholder="Search..." autocomplete="off"id="local-search-input" >
+        <i class="cross"></i>
+        <span>
+            <label for="tagswitch">Tags:</label>
+            <input id="tagswitch" type="checkbox" style="display: none" />
+            <i id="tagsWitchIcon"></i>
+        </span>
+    </form>
+    <div class="tags-list">
+    
+    <li class="article-tag-list-item">
+        <a href="javascript:" class="color2">Object Detection</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a href="javascript:" class="color4">Glossary</a>
+    </li>
+    
+    <div class="clearfix"></div>
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        <a  class="Machine "
+           href="/2019/Faster-R-CNN/"
+           data-tag="Object Detection"
+           data-author="" >
+            <span class="post-title" title="Faster R-CNN">Faster R-CNN</span>
+            <span class="post-date" title="2019-09-22">2019-09-22</span>
+        </a>
+        
+        <a  class="Machine "
+           href="/2019/Glossary/"
+           data-tag="Glossary"
+           data-author="" >
+            <span class="post-title" title="Glossary">Glossary</span>
+            <span class="post-date" title="2019-09-22">2019-09-22</span>
+        </a>
+        
+        <a  class="Machine "
+           href="/2019/Fast-R-CNN/"
+           data-tag="Object Detection"
+           data-author="" >
+            <span class="post-title" title="Fast R-CNN">Fast R-CNN</span>
+            <span class="post-date" title="2019-09-22">2019-09-22</span>
+        </a>
+        
+    </nav>
+</div>
+    </div>
+    <div class="hide-list">
+        <div class="semicircle">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div class="post">
+    <div class="pjax">
+        <article id="post-Fast-R-CNN" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">Fast R-CNN</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            
+                <a href="javascript:" data-rel="Machine">Machine</a>
+            
+        </span>
+        
+        
+        <span class="tag">
+            
+            <a href="javascript:" class="color2">Object Detection</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+        创建时间:<time class="date" title='更新时间: 2019-09-29'>2019-09-22</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        <span>字数:2.5k</span>
+        
+        
+        <span id="busuanzi_container_page_pv">
+            阅读:<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Declaration"><span class="toc-text">Declaration</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Abstract"><span class="toc-text">Abstract</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-Introduction"><span class="toc-text">1. Introduction</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-R-CNN-and-SPPnet"><span class="toc-text">1.1 R-CNN and SPPnet</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-Contributions"><span class="toc-text">1.2 Contributions</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-Architecture-and-Training"><span class="toc-text">2. Architecture and Training</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-ROI-pooling-layer"><span class="toc-text">2.1 ROI pooling layer</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-Initializing-from-pre-trained-networks"><span class="toc-text">2.2 Initializing from pre-trained networks</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-Fine-tuning-for-detection"><span class="toc-text">2.3 Fine-tuning for detection</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Multi-task-loss"><span class="toc-text">Multi-task loss</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Mini-batch-sampling"><span class="toc-text">Mini-batch sampling</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Back-propagation-through-RoI-pooling-layers"><span class="toc-text">Back-propagation through RoI pooling layers</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SGD-hyper-parameters"><span class="toc-text">SGD hyper-parameters</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-Scale-invariance"><span class="toc-text">2.4 Scale invariance</span></a></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><div class='inner-toc'><h1>Contents</h1><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Declaration"><span class="toc-text">Declaration</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Abstract"><span class="toc-text">Abstract</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#1-Introduction"><span class="toc-text">1. Introduction</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-1-R-CNN-and-SPPnet"><span class="toc-text">1.1 R-CNN and SPPnet</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#1-2-Contributions"><span class="toc-text">1.2 Contributions</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-Architecture-and-Training"><span class="toc-text">2. Architecture and Training</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-ROI-pooling-layer"><span class="toc-text">2.1 ROI pooling layer</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-Initializing-from-pre-trained-networks"><span class="toc-text">2.2 Initializing from pre-trained networks</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-Fine-tuning-for-detection"><span class="toc-text">2.3 Fine-tuning for detection</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Multi-task-loss"><span class="toc-text">Multi-task loss</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Mini-batch-sampling"><span class="toc-text">Mini-batch sampling</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Back-propagation-through-RoI-pooling-layers"><span class="toc-text">Back-propagation through RoI pooling layers</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#SGD-hyper-parameters"><span class="toc-text">SGD hyper-parameters</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-4-Scale-invariance"><span class="toc-text">2.4 Scale invariance</span></a></li></ol></li></ol></div></p>
+<h1 id="Declaration"><a href="#Declaration" class="headerlink" title="Declaration"></a>Declaration</h1><p>此为个人原创的选译笔记，仅供参考。</p>
+<ul>
+<li>原载于：<a href="https://shzhao17.github.io/2019/Fast-R-CNN/">Fast R-CNN</a></li>
+<li>选译自：<a href="https://arxiv.org/abs/1504.08083" target="_blank" rel="noopener">Fast R-CNN</a></li>
+</ul>
+<h1 id="Abstract"><a href="#Abstract" class="headerlink" title="Abstract"></a>Abstract</h1><p>本文提出了 Fast Region-based Convolutional Network (Fast R-CNN) 方法</p>
+<p>基于前人工作，Fast R-CNN </p>
+<ul>
+<li>以 DCNN 有效地区分了 object proposals</li>
+<li>提升了 train 和 test 速度，并增加了 accuracy</li>
+</ul>
+<p>对比 R-CNN，Fast R-CNN </p>
+<ul>
+<li>训练了 VGG16，以 9 倍速 train，以 213 倍速 test</li>
+<li>在 PASCAL VOC 2012 数据集上的 mAP 更高</li>
+</ul>
+<p>对比 SPPnet，Fast R-CNN </p>
+<ul>
+<li>训练了 VGG16，以 3 倍速 train，以 10 倍速 test，也更准</li>
+</ul>
+<p>Fast-CNN 以 Python 与 C++ (Caffe) 实现，在 Github 以 MIT License 开源</p>
+<h1 id="1-Introduction"><a href="#1-Introduction" class="headerlink" title="1. Introduction"></a>1. Introduction</h1><h2 id="1-1-R-CNN-and-SPPnet"><a href="#1-1-R-CNN-and-SPPnet" class="headerlink" title="1.1 R-CNN and SPPnet"></a>1.1 R-CNN and SPPnet</h2><p>R-CNN 用 DCNN 来区分 object proposals，accuracy 很好，但有以下弊端：</p>
+<ol>
+<li>Training 是一道多级流水线：<ul>
+<li>R-CNN 先在 object proposals 上用 log loss 来 fine-tune 一个 CNN</li>
+<li>R-CNN 再在 CNN 从 object proposals 提取的 features 上拟合多个 SVM</li>
+<li>这些 SVM 作为 object detector 取代了 fine-tune 时学到的 softmax 分类器</li>
+<li>在 Training 的第三阶段，R-CNN 还学习了 bounding-box regressor</li>
+</ul>
+</li>
+<li>Training 在时间与空间上的开销大：<ul>
+<li>训练 SVM 与 bounding-box regressor 时，<ul>
+<li>R-CNN 提取每张 image 的每个 object proposal 的 features，并写入磁盘</li>
+<li>VGG16 处理 VOC07 的 5K 张 images 时，在此过程花了 2.5 GPU days</li>
+<li>这些 features 需要几百 GB 的存储空间</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Object detection 很慢<ul>
+<li>测试时，R-CNN 要为每张 test image 的每个 object proposal 提取特征</li>
+<li>在单个 GPU 上，以 VGG16 检测一张 image 需要 47 秒</li>
+</ul>
+</li>
+</ol>
+<p>R-CNN 慢，是因为它为每个 object proposal 执行一次 forward pass，而不共享计算。</p>
+<p>SPPnets 则以共享计算来加速 R-CNN。</p>
+<ul>
+<li>SPPnet 为整张 input image 计算了一张 convolutional feature map（卷积特征图）</li>
+<li>object proposal 框的 features 是以 maxpooling 采样自 feature map 在框内的部分</li>
+<li>这些 features 有着某个固定的大小（比如 $6 \times 6$），被用于区分各个 object proposal</li>
+<li>不同大小的 features 被池化与串联，有如 spatial pyramid pooling</li>
+</ul>
+<p>对比 R-CNN，SPPnet </p>
+<ul>
+<li>以 3 倍速 train，以 10-100 倍速 test</li>
+<li>归功于对 object proposal 更快的 feature 提取</li>
+</ul>
+<h2 id="1-2-Contributions"><a href="#1-2-Contributions" class="headerlink" title="1.2 Contributions"></a>1.2 Contributions</h2><p>Fast R-CNN 有以下优点：</p>
+<ol>
+<li>对比 R-CNN 与 SPPnet，有着更高的检测准度（mAP）</li>
+<li>Training 是单级的，且采用了 multi-task loss</li>
+<li>Training 能更新所有的神经网络层</li>
+<li>不需要为 feature caching 提供磁盘存储空间</li>
+</ol>
+<h1 id="2-Architecture-and-Training"><a href="#2-Architecture-and-Training" class="headerlink" title="2. Architecture and Training"></a>2. Architecture and Training</h1><p>Fast R-CNN 架构与流程是：</p>
+<ul>
+<li>读入一张 image 与多个 object proposals</li>
+<li>以整张 image 通过 convolution 层与 maxpooling 层生成一张 conv feature map</li>
+<li>对于每个 object proposal，ROI pooling 层从 feature map 内提取固定长度的 features</li>
+<li>每个 feature 向量被送入一系列 FC 层，并最终进入两个输出层分支：<ul>
+<li>分支一为每个 object class 与 1 个 background class 产生 1 个 softmax 概率估计值</li>
+<li>分支二为每个 object class 产生 4 个实数值以表示其修正后的 bounding box 的位置</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-1-ROI-pooling-layer"><a href="#2-1-ROI-pooling-layer" class="headerlink" title="2.1 ROI pooling layer"></a>2.1 ROI pooling layer</h2><p>ROI pooling 层</p>
+<ul>
+<li>给定 ROI，用 maxpooling 采样整张 feature map 在 ROI 的部分而成 $H \times W$ features</li>
+<li>$H$ 与 $W$ 是每层的 hyper-parameters，与 ROI 本身无关</li>
+<li>一个 ROI 是整张 conv feature map（卷积特征图）里的一个矩形窗口</li>
+<li>每个 ROI 定义了一个四元组 $(r,c,h,w)$，表示此矩形窗口的左上角 $(r,c)$、高 $h$、与宽 $w$</li>
+</ul>
+<h2 id="2-2-Initializing-from-pre-trained-networks"><a href="#2-2-Initializing-from-pre-trained-networks" class="headerlink" title="2.2 Initializing from pre-trained networks"></a>2.2 Initializing from pre-trained networks</h2><p>我们试验了 3 个 ImageNet pre-trained networks，各有 5 个 maxpooling 层与 5-13 个 conv 层。</p>
+<p>当以 1 个 pre-trained network 初始化 Fast R-CNN 网络时，它将经历以下 3 个变换：</p>
+<ul>
+<li>ROI pooling 层取代 pre-trained network 末尾的 maxpooling 层，设好 $H$ 与 $W$<ul>
+<li>$H$ 与 $W$ 需兼容于 pre-trained network 末尾的首个 FC 层</li>
+<li>比如，应为 $VGG16$ 设定 $H=W=7$。</li>
+</ul>
+</li>
+<li>2 个输出层分支取代 pre-trained network 末尾的 FC 层与 softmax 层：<ul>
+<li>分支一有 FC 层与 $K+1$ 类别的 softmax 层，包括 $1$ 个 background class</li>
+<li>分支二有 FC 层与 $K$ object classes 专属的 bounding-box regressors</li>
+</ul>
+</li>
+<li>修改 pre-trained network，使之可输入 2 类数据：<ul>
+<li>一系列 images</li>
+<li>这些 images 的一系列 object proposal (ROI)</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-3-Fine-tuning-for-detection"><a href="#2-3-Fine-tuning-for-detection" class="headerlink" title="2.3 Fine-tuning for detection"></a>2.3 Fine-tuning for detection</h2><p>以 back-propagation 来训练所有的 network weights，是 Fast R-CNN 的重要能力。</p>
+<p>我们提出了更有效率的 training 方法：在 training 时共享 features。</p>
+<ul>
+<li>训练 Fast R-CNN 时，stochastic gradient descent (SGD) 的 mini-batches 是分级采样的<ul>
+<li>先采样 $N$ 张 images，再从每张 image 里采样 $R/N$ 个 ROI</li>
+<li>关键是在同一张 image 的 ROI 在 forward pass 与 backward pass 时共享算力与内存</li>
+</ul>
+</li>
+<li>$N$ 若取小值，可降低 mini-batch 的计算量<ul>
+<li>$N = 2$ 与 $R = 128$，其训练模式约 64 倍快于在 128 images 各采样一个 ROI 的模式</li>
+<li>后者的训练模式正是 R-CNN 与 SPPnet 采用的策略</li>
+</ul>
+</li>
+</ul>
+<h3 id="Multi-task-loss"><a href="#Multi-task-loss" class="headerlink" title="Multi-task loss"></a>Multi-task loss</h3><p>Fast R-CNN 有两个输出层分支：</p>
+<ul>
+<li>分支一为每个 ROI 输出一个 $K+1$ 类别的离散概率分布，$p=(p_0,\cdots,p_K)$<ul>
+<li>$p$ 是 FC 层的 $K+1$ 输出的 softmax 计算结果</li>
+</ul>
+</li>
+<li>分支二为每个 object class $k \in [0,K)$ 输出其 bounding-box regression 的偏移量<ul>
+<li>$t^k = (t_x^k,t_y^k,t_w^k,t_h^k)$ 是相对于一个 object proposal 的偏移量</li>
+<li>$t_x^k, t_y^k$ 是相对于一个 object proposal 的尺度不变的位移量</li>
+<li>$t_h^k, t_w^k$ 是相对于一个 object proposal 的 log-space 的 height/width 偏移量</li>
+</ul>
+</li>
+</ul>
+<p>每个 ROI 在 training 时有 2 个标签：</p>
+<ul>
+<li>ground-truth 类别 $u$，$u \geq 1$ 为 object class，$u = 0$ 为 background class</li>
+<li>ground-truth bounding-box regression 目标 $v = (v_x,v_y,v_w,v_h)$</li>
+</ul>
+<p>对于有标签的 ROI，以 multi-task loss $L$ 同时训练 classification 与 bounding-box regression：</p>
+<script type="math/tex; mode=display">
+L(p,u,t^u,v) = L_{cls}(p,u) + \lambda[u \geq 1]L_{loc}(t^u,v)</script><p>关于 $L_{cls}(p,u)$ 的取值：</p>
+<ul>
+<li><p>$L_{cls}(p,u) = -\log p_u$ 是相对于真实类别 $u$ 的 log loss</p>
+</li>
+<li><p>$p_u$ 是此 ROI 被归类为真实类别 $u$ 的概率</p>
+</li>
+</ul>
+<p>关于 $[u \geq 1]$ 的取值：</p>
+<ul>
+<li>对于 object class $u \geq 1$：$[u \geq 1] = 1$</li>
+<li><p>对于 background class $u = 0$：$[u \geq 1] = 0$</p>
+</li>
+<li><p>位于背景的 ROI 并无 ground-truth bounding box，因此忽略 $L_{loc}$</p>
+</li>
+</ul>
+<p>关于 $L_{loc}(t^u,v)$ 的取值：</p>
+<ul>
+<li><p>给定 bounding-box regression 目标 $v = (v_x,v_y,v_w,v_h)$ 与预测 $t^k = (t_x^u,t_y^u,t_w^u,t_h^u)$</p>
+<script type="math/tex; mode=display">
+L_{loc}(t^u,v) = \sum_{i \in \{x,y,w,h\}} \text{smooth}_{L_1} (t_i^u - v_i)</script><script type="math/tex; mode=display">
+\text{smooth}_{L_1}(x) = 
+\left\{\begin{array}{ll}
+ 0.5 x^2 & \text{if} \ |x| < 1 \\ 
+ |x| - 0.5 & \text{otherwise},
+\end{array}\right.</script></li>
+<li><p>对比 R-CNN 与 SPPnet 采用的 $L_2$ loss，$\text{smooth}_{L_1}(x)$ 对 outliers 更不敏感</p>
+</li>
+<li><p>regression 目标不受限定时，若以 $L_2$ loss 来训练，需细调 learning rate 以防梯度爆炸</p>
+</li>
+<li><p>$\text{smooth}_{L_1}(x)$ 消除了这样的敏感性</p>
+</li>
+</ul>
+<p>关于 $\lambda$ 的取值：</p>
+<ul>
+<li>超参数 $\lambda$ 平衡了两种任务的 losses，在所有的实验里 $\lambda = 1$</li>
+<li>我们也 normalize 了 bounding-box regression 目标，使之有 0 均值与 1 方差</li>
+</ul>
+<h3 id="Mini-batch-sampling"><a href="#Mini-batch-sampling" class="headerlink" title="Mini-batch sampling"></a>Mini-batch sampling</h3><p>在 fine-tuning 时，SGD 的每批 mini-batch 有 $N = 2$ 张随机挑选的 images</p>
+<ul>
+<li>常见的做法是遍历数据集的各种排列（iterate over permutations of the dataset）</li>
+</ul>
+<p>我们选用大小为 $R = 128$ 的 mini-batch，即需从每张 image 里采样出 64 个 ROI</p>
+<ul>
+<li>其中 25% 的 ROI 选自与某 ground-truth box 有着至少 0.5 IoU 重叠率的 object proposals<ul>
+<li>这些 ROI 组成了被标签为 foreground object class 的样本，即 $u \geq 1$</li>
+</ul>
+</li>
+<li>余下的 ROI 则选自与任意 ground-truth 最多也只有 $[0.1, 0.5)$ IoU 重叠率的 object proposals<ul>
+<li>这些 ROI 组成了被标签为 background 的样本，即 $u = 0$</li>
+</ul>
+</li>
+<li>更低的 IoU 重叠率阈值 0.1 则被作为 hard example mining 的 heuristic</li>
+</ul>
+<p>在 training 时，image 以 0.5 的概率会被水平翻转</p>
+<p>除此之外，再没有采用其他的 data augmentation</p>
+<h3 id="Back-propagation-through-RoI-pooling-layers"><a href="#Back-propagation-through-RoI-pooling-layers" class="headerlink" title="Back-propagation through RoI pooling layers"></a>Back-propagation through RoI pooling layers</h3><p>Back propagation 导引 derivatives 通过 ROI pooling layer</p>
+<ul>
+<li><p>为了清楚起见，这里我们假设每批 mini-batch 只有 $N = 1$ 张 image</p>
+</li>
+<li><p>但扩展到 $N &gt; 1$ 是显而易见的，因为 forward pass 会独立地处理每张 image</p>
+</li>
+</ul>
+<p>假设</p>
+<ul>
+<li>$x_i \in \mathbb{R}$ 是 ROI pooling layer 的 $i$-th activation input</li>
+<li>$y_{rj}$ 是此 layer 在 $r$-th ROI 上的 $j$-th output</li>
+</ul>
+<p>ROI pooling layer 计算出 $y_{rj} = x_{i^*(r,j)}$，其中，</p>
+<ul>
+<li>$i^*(r,j) = \text{argmax}_{i’ \in R(r,j)} x_{i’}$</li>
+<li>$R(r,j)$ 是某个像素窗口的 index set of inputs</li>
+<li>而此像素窗口正是 output unit $y_{rj}$ 进行 max pooling 的对象</li>
+<li>单个 $x_i$ 可以被用于计算多个不同的 outputs $y_{rj}$</li>
+</ul>
+<p>ROI pooling layer 的 backwards 函数计算出 loss function 相对每个输入变量 $x_i$ 的偏导数，如下：</p>
+<script type="math/tex; mode=display">
+\dfrac{\partial L}{\partial x_i} = \sum_r \sum_j [ i = i^*(r,j) ] \dfrac{\partial L}{\partial y_{rj}}</script><p>其中，</p>
+<ul>
+<li>对于每个 mini-batch 的 ROI $r$ 与每个 pooling output unit $y_{rj}$，偏导数 $\frac{\partial L}{\partial y_{rj}}$ 会被累加</li>
+<li>只要 $i$ 是被 $y_{rj}$ 的 max pooling 选中的 argmax index，即，$i^*(r,j)$</li>
+<li>在 back-propagation 时，偏导数 $\frac{\partial L}{\partial y_{rj}}$ 已被 ROI pooling layer 后一层的 backwards 函数计算出</li>
+</ul>
+<h3 id="SGD-hyper-parameters"><a href="#SGD-hyper-parameters" class="headerlink" title="SGD hyper-parameters"></a>SGD hyper-parameters</h3><p>用于 softmax 分类与 bounding-box regression 的 FC layers </p>
+<ul>
+<li>分别 initialize 自 0.01 与 0.001 标准差的 0 均值的高斯分布</li>
+<li>Biases 被初始化为 0</li>
+</ul>
+<p>所有 layers 的 per-layer learning rate 对 weights 设为 1，对 bias 设为 2</p>
+<ul>
+<li>而 global learning rate 是 0.001</li>
+</ul>
+<p>当在 VOC07 或 VOC12 上 training 时，</p>
+<ul>
+<li>我们跑了 30k mini-batch iterations 的 SGD</li>
+<li>然后降低 learning rate 为 0.0001，再 train 了 10k iterations</li>
+<li>当在更大的数据集上 train 时，我们会跑更多 iterations 的 SGD</li>
+</ul>
+<p>我们采用了 0.9 的 momentum 与 0.0005 的 parameter decay（在 weights 与 biases 上）</p>
+<h2 id="2-4-Scale-invariance"><a href="#2-4-Scale-invariance" class="headerlink" title="2.4 Scale invariance"></a>2.4 Scale invariance</h2><p>我们探索了两种方法以达到 scale-invariant object detection：</p>
+<ul>
+<li>通过“暴力”学习<ul>
+<li>每张 image 在 training 与 testing 时都被以预先定义的 pixel size 来处理</li>
+<li>network 必须从 training data 直接学习到 scale-invariant object detection</li>
+</ul>
+</li>
+<li>采用 image pyramids<ul>
+<li>multi-scale 方法通过 image pyramid 来为 network 提供近似的 scale-invariance</li>
+<li>测试时，image pyramid 被用于近似地 scale-normalize 每个 object proposal</li>
+<li>在 multi-scale training 时，我们在每张 image 上随机采样一个 image pyramid</li>
+<li>这样的采样是作为 data augmentation 的一种形式</li>
+<li>受 GPU 的内存所限，我们只在小型 network 上试验了 multi-scale training</li>
+</ul>
+</li>
+</ul>
+
+      
+       
+    </div>
+</article>
+
+
+<p></p>
+
+
+<div class="article_copyright">
+    <p><span class="copy-title">文章标题:</span>Fast R-CNN</p>
+    <p><span class="copy-title">文章字数:</span><span class="post-count">2.5k</span></p>
+    <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="MapleFlying">MapleFlying</a></p>
+    <p><span class="copy-title">发布时间:</span>2019-09-22</p>
+    <p><span class="copy-title">最后更新:</span>2019-09-29</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/2019/Fast-R-CNN/" title="Fast R-CNN">https://shzhao17.github.io/2019/Fast-R-CNN/</a>
+    <p>
+        <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+    </p>
+</div>
+
+
+
+
+
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript"
+        src="//cdn.bootcss.com/mathjax/2.7.6/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<input type="hidden" id="MathJax-js"
+        value="//cdn.bootcss.com/mathjax/2.7.6/MathJax.js?config=TeX-MML-AM_CHTML">
+</input>
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">©2019 shzhao17</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full"><span class="min "></span></button>
+<button class="post-toc-menu"><span class="post-toc-menu-icons"></span></button>
+<div class="post-toc"><span class="post-toc-title">目录</span>
+    <div class="post-toc-content">
+
+    </div>
+</div>
+<a class="" id="rocket" href="javascript:void(0)"></a>
+    </div>
+</div>
+<div class="acParent"></div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close" href="javascript:void(0)" onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+        </div>
+    </div>
+    <div class="shang_payselect">
+    </div>
+</div><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.0.1" ></script>
+
+<script src="/js/script.js?v=1.0.1" ></script>
+<script>
+    var img_resize = 'default';
+    /*作者、标签的自动补全*/
+    $(function () {
+        $('.search').AutoComplete({
+            'data': ['#Object Detection','#Glossary',],
+            'itemHeight': 20,
+            'width': 418
+        }).AutoComplete('show');
+    })
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $(".post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+        $('pre code').each(function(){
+            var lines = $(this).text().split('\n').length - 1, widther='';
+            if (lines>99) {
+                widther = 'widther'
+            }
+            var $numbering = $('<ul/>').addClass('pre-numbering ' + widther).attr("unselectable","on");
+            $(this).addClass('has-numbering ' + widther)
+                    .parent()
+                    .append($numbering);
+            for(var i=1;i<=lines;i++){
+                $numbering.append($('<li/>').text(i));
+            }
+        });
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<style>
+    pre{
+        position: relative;
+        margin-bottom: 24px;
+        border-radius: 10px;
+        border: 1px solid #e2dede;
+        background: #FFF;
+        overflow: hidden;
+    }
+    code.has-numbering{
+        margin-left: 30px;
+    }
+    code.has-numbering.widther{
+        margin-left: 35px;
+    }
+    .pre-numbering{
+        margin: 0px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 20px;
+        padding: 0.5em 3px 0.7em 5px;
+        border-right: 1px solid #C3CCD0;
+        text-align: right;
+        color: #AAA;
+        background-color: #fafafa;
+    }
+    .pre-numbering.widther {
+        width: 35px;
+    }
+</style>
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+        .nav .hide-list.fullscreen {
+            left: 492px
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+    .post .pjax article .article-entry>ol, .post .pjax article .article-entry>ul, .post .pjax article>ol, .post .pjax article>ul{
+        border: #e2dede solid 1px;
+        border-radius: 10px;
+        padding: 10px 32px 10px 56px;
+    }
+    .post .pjax article .article-entry li>ol, .post .pjax article .article-entry li>ul,.post .pjax article li>ol, .post .pjax article li>ul{
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+    .post .pjax article .article-entry>ol>li, .post .pjax article .article-entry>ul>li,.post .pjax article>ol>li, .post .pjax article>ul>li{
+        margin-bottom: auto;
+        margin-left: auto;
+    }
+    .post .pjax article .article-entry li>ol>li, .post .pjax article .article-entry li>ul>li,.post .pjax article li>ol>li, .post .pjax article li>ul>li{
+        margin-bottom: auto;
+        margin-left: auto;
+    }
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+    .nav-right:before {
+        content: ' ';
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.3;
+        background: url("https://i.loli.net/2019/07/22/5d3521411f3f169375.png");
+        background-repeat: no-repeat;
+        background-position: 50% 0;
+        -ms-background-size: cover;
+        -o-background-size: cover;
+        -moz-background-size: cover;
+        -webkit-background-size: cover;
+        background-size: cover;
+    }
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>

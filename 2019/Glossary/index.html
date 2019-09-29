@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+  <title>Glossary | MapleFlying</title>
+  <meta name="keywords" content=" Glossary ">
+  <meta name="description" content="Glossary | MapleFlying">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="@[toc] Declaration此为个人原创的选译笔记，仅供参考。  原载于：Faster R-CNN 选译自：Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks  3. Region Proposal NetworksRPN 读入一张任意大小的照片，输出一批 rectangular ob">
+<meta name="keywords" content="Object Detection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Faster R-CNN">
+<meta property="og:url" content="https://shzhao17.github.io/2019/Faster-R-CNN/index.html">
+<meta property="og:site_name" content="MapleFlying">
+<meta property="og:description" content="@[toc] Declaration此为个人原创的选译笔记，仅供参考。  原载于：Faster R-CNN 选译自：Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks  3. Region Proposal NetworksRPN 读入一张任意大小的照片，输出一批 rectangular ob">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2019-09-29T09:14:42.714Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Faster R-CNN">
+<meta name="twitter:description" content="@[toc] Declaration此为个人原创的选译笔记，仅供参考。  原载于：Faster R-CNN 选译自：Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks  3. Region Proposal NetworksRPN 读入一张任意大小的照片，输出一批 rectangular ob">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.0.1" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.0.1" rel="stylesheet">
+
+<link href="//cdn.bootcss.com/animate.css/3.5.2/animate.min.css" rel="stylesheet">
+<link href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="/js/jquery.autocomplete.min.js?v=1.0.1"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.bootcss.com/nprogress/0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+
+<script src="/js/iconfont.js?v=1.0.1"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="false">
+  <input class="theme_blog_path" value>
+</div>
+
+<body>
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><aside class="nav">
+    <div class="nav-left">
+        <a href="/" class="avatar_target">
+    <img class="avatar" src="/img/avatar.jpg" />
+</a>
+<div class="author">
+    <span>MapleFlying</span>
+</div>
+
+<div class="icon">
+    
+        
+    
+        
+        <a title="github" href="https://github.com/shzhao17" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-github"></use>
+                </svg>
+            
+        </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+</div>
+
+
+
+
+<ul>
+    <li><div class="all active">Articles<small>(3)</small></div></li>
+    
+        
+            
+            <li><div data-rel="Machine">Machine<small>(3)</small></div>
+                
+            </li>
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+    
+    </div>
+    <div></div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="3">
+<input type="hidden" id="yelog_site_word_count" value="5.5k">
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="back-title-list"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <form onkeydown="if(event.keyCode==13){return false;}">
+        <input class="search" type="text" placeholder="Search..." autocomplete="off"id="local-search-input" >
+        <i class="cross"></i>
+        <span>
+            <label for="tagswitch">Tags:</label>
+            <input id="tagswitch" type="checkbox" style="display: none" />
+            <i id="tagsWitchIcon"></i>
+        </span>
+    </form>
+    <div class="tags-list">
+    
+    <li class="article-tag-list-item">
+        <a href="javascript:" class="color2">Object Detection</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a href="javascript:" class="color4">Glossary</a>
+    </li>
+    
+    <div class="clearfix"></div>
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        <a  class="Machine "
+           href="/2019/Faster-R-CNN/"
+           data-tag="Object Detection"
+           data-author="" >
+            <span class="post-title" title="Faster R-CNN">Faster R-CNN</span>
+            <span class="post-date" title="2019-09-22">2019-09-22</span>
+        </a>
+        
+        <a  class="Machine "
+           href="/2019/Glossary/"
+           data-tag="Glossary"
+           data-author="" >
+            <span class="post-title" title="Glossary">Glossary</span>
+            <span class="post-date" title="2019-09-22">2019-09-22</span>
+        </a>
+        
+        <a  class="Machine "
+           href="/2019/Fast-R-CNN/"
+           data-tag="Object Detection"
+           data-author="" >
+            <span class="post-title" title="Fast R-CNN">Fast R-CNN</span>
+            <span class="post-date" title="2019-09-22">2019-09-22</span>
+        </a>
+        
+    </nav>
+</div>
+    </div>
+    <div class="hide-list">
+        <div class="semicircle">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div class="post">
+    <div class="pjax">
+        <article id="post-Glossary" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">Glossary</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            
+                <a href="javascript:" data-rel="Machine">Machine</a>
+            
+        </span>
+        
+        
+        <span class="tag">
+            
+            <a href="javascript:" class="color4">Glossary</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+        创建时间:<time class="date" title='更新时间: 2019-09-29'>2019-09-22</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        <span>字数:361</span>
+        
+        
+        <span id="busuanzi_container_page_pv">
+            阅读:<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Declaration"><span class="toc-text">Declaration</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Machine-Learning"><span class="toc-text">Machine Learning</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Neural-Network"><span class="toc-text">Neural Network</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Object-Detection"><span class="toc-text">Object Detection</span></a></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><div class='inner-toc'><h1>Contents</h1><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Declaration"><span class="toc-text">Declaration</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Machine-Learning"><span class="toc-text">Machine Learning</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Neural-Network"><span class="toc-text">Neural Network</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Object-Detection"><span class="toc-text">Object Detection</span></a></li></ol></div></p>
+<h1 id="Declaration"><a href="#Declaration" class="headerlink" title="Declaration"></a>Declaration</h1><p>此为个人原创的选译词汇表，仅供参考。</p>
+<ul>
+<li>原载于：<a href="https://shzhao17.github.io/2019/Glossary/">Glossary</a></li>
+</ul>
+<h1 id="Machine-Learning"><a href="#Machine-Learning" class="headerlink" title="Machine Learning"></a>Machine Learning</h1><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>English 英文术语</th>
+<th>Chinese 中文意译</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>initialize</td>
+<td>初始化</td>
+</tr>
+<tr>
+<td>normalize</td>
+<td>标准化</td>
+</tr>
+<tr>
+<td>feature</td>
+<td>特征（向量）</td>
+</tr>
+<tr>
+<td>outliers</td>
+<td>异常值、异常点、孤立点</td>
+</tr>
+<tr>
+<td>fine-tune</td>
+<td>微调</td>
+</tr>
+<tr>
+<td>softmax</td>
+<td>softmax 算法</td>
+</tr>
+<tr>
+<td>log loss</td>
+<td>logistic 损失</td>
+</tr>
+<tr>
+<td>log-space</td>
+<td>对数空间</td>
+</tr>
+<tr>
+<td>train / training</td>
+<td>训练</td>
+</tr>
+<tr>
+<td>test / testing</td>
+<td>测试</td>
+</tr>
+<tr>
+<td>accuracy</td>
+<td>准确度</td>
+</tr>
+<tr>
+<td>mAP</td>
+<td>平均准度、平均查准率的均值</td>
+</tr>
+<tr>
+<td>ground truth</td>
+<td>真实、事实、现实参照</td>
+</tr>
+<tr>
+<td>GPU days</td>
+<td>在单个 GPU 上计算所需的天数</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="Neural-Network"><a href="#Neural-Network" class="headerlink" title="Neural Network"></a>Neural Network</h1><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>English 英文术语</th>
+<th>Chinese 中文意译</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CNN</td>
+<td>卷积神经网络</td>
+</tr>
+<tr>
+<td>DCNN</td>
+<td>深度卷积神经网络</td>
+</tr>
+<tr>
+<td>FCN, fully convolutional network</td>
+<td>全卷积网络</td>
+</tr>
+<tr>
+<td>R-CNN</td>
+<td>基于区域（检测框）的 CNN</td>
+</tr>
+<tr>
+<td>pre-train</td>
+<td>预训练</td>
+</tr>
+<tr>
+<td>forward pass</td>
+<td>神经网络的正向传递</td>
+</tr>
+<tr>
+<td>BP, back-propagation</td>
+<td>神经网络的反向传播</td>
+</tr>
+<tr>
+<td>SGD, stochastic gradient descent</td>
+<td>随机梯度下降</td>
+</tr>
+<tr>
+<td>hyper-parameters</td>
+<td>超参数</td>
+</tr>
+<tr>
+<td>FC, fully connected</td>
+<td>全连接</td>
+</tr>
+<tr>
+<td>maxpooling</td>
+<td>最大池化</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h1 id="Object-Detection"><a href="#Object-Detection" class="headerlink" title="Object Detection"></a>Object Detection</h1><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>English 英文术语</th>
+<th>Chinese 中文意译</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ROI, region of interest</td>
+<td>感兴趣的区域</td>
+</tr>
+<tr>
+<td>object class</td>
+<td>目标类别、物体类别</td>
+</tr>
+<tr>
+<td>background class</td>
+<td>背景类别</td>
+</tr>
+<tr>
+<td>region proposal</td>
+<td>区域候选（框）</td>
+</tr>
+<tr>
+<td>RPN, region proposal network</td>
+<td>区域候选（框）的神经网络</td>
+</tr>
+<tr>
+<td>object proposal</td>
+<td>目标候选（框）、物体候选（框）</td>
+</tr>
+<tr>
+<td>object detection</td>
+<td>目标检测、物体检测</td>
+</tr>
+<tr>
+<td>object detector</td>
+<td>目标检测器、物体检测器</td>
+</tr>
+<tr>
+<td>bounding-box</td>
+<td>目标检测框、边框</td>
+</tr>
+<tr>
+<td>bounding-box regression</td>
+<td>目标检测框回归</td>
+</tr>
+<tr>
+<td>bounding-box regressor</td>
+<td>目标检测框回归器</td>
+</tr>
+<tr>
+<td>multi-task loss</td>
+<td>多任务（导向）的损失</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+      
+       
+    </div>
+</article>
+
+
+<p></p>
+
+
+<div class="article_copyright">
+    <p><span class="copy-title">文章标题:</span>Glossary</p>
+    <p><span class="copy-title">文章字数:</span><span class="post-count">364</span></p>
+    <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="MapleFlying">MapleFlying</a></p>
+    <p><span class="copy-title">发布时间:</span>2019-09-22</p>
+    <p><span class="copy-title">最后更新:</span>2019-09-29</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/2019/Glossary/" title="Glossary">https://shzhao17.github.io/2019/Glossary/</a>
+    <p>
+        <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+    </p>
+</div>
+
+
+
+
+
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript"
+        src="//cdn.bootcss.com/mathjax/2.7.6/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<input type="hidden" id="MathJax-js"
+        value="//cdn.bootcss.com/mathjax/2.7.6/MathJax.js?config=TeX-MML-AM_CHTML">
+</input>
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">©2019 shzhao17</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full"><span class="min "></span></button>
+<button class="post-toc-menu"><span class="post-toc-menu-icons"></span></button>
+<div class="post-toc"><span class="post-toc-title">目录</span>
+    <div class="post-toc-content">
+
+    </div>
+</div>
+<a class="" id="rocket" href="javascript:void(0)"></a>
+    </div>
+</div>
+<div class="acParent"></div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close" href="javascript:void(0)" onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+        </div>
+    </div>
+    <div class="shang_payselect">
+    </div>
+</div><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.0.1" ></script>
+
+<script src="/js/script.js?v=1.0.1" ></script>
+<script>
+    var img_resize = 'default';
+    /*作者、标签的自动补全*/
+    $(function () {
+        $('.search').AutoComplete({
+            'data': ['#Object Detection','#Glossary',],
+            'itemHeight': 20,
+            'width': 418
+        }).AutoComplete('show');
+    })
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $(".post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+        $('pre code').each(function(){
+            var lines = $(this).text().split('\n').length - 1, widther='';
+            if (lines>99) {
+                widther = 'widther'
+            }
+            var $numbering = $('<ul/>').addClass('pre-numbering ' + widther).attr("unselectable","on");
+            $(this).addClass('has-numbering ' + widther)
+                    .parent()
+                    .append($numbering);
+            for(var i=1;i<=lines;i++){
+                $numbering.append($('<li/>').text(i));
+            }
+        });
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<style>
+    pre{
+        position: relative;
+        margin-bottom: 24px;
+        border-radius: 10px;
+        border: 1px solid #e2dede;
+        background: #FFF;
+        overflow: hidden;
+    }
+    code.has-numbering{
+        margin-left: 30px;
+    }
+    code.has-numbering.widther{
+        margin-left: 35px;
+    }
+    .pre-numbering{
+        margin: 0px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 20px;
+        padding: 0.5em 3px 0.7em 5px;
+        border-right: 1px solid #C3CCD0;
+        text-align: right;
+        color: #AAA;
+        background-color: #fafafa;
+    }
+    .pre-numbering.widther {
+        width: 35px;
+    }
+</style>
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+        .nav .hide-list.fullscreen {
+            left: 492px
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+    .post .pjax article .article-entry>ol, .post .pjax article .article-entry>ul, .post .pjax article>ol, .post .pjax article>ul{
+        border: #e2dede solid 1px;
+        border-radius: 10px;
+        padding: 10px 32px 10px 56px;
+    }
+    .post .pjax article .article-entry li>ol, .post .pjax article .article-entry li>ul,.post .pjax article li>ol, .post .pjax article li>ul{
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+    .post .pjax article .article-entry>ol>li, .post .pjax article .article-entry>ul>li,.post .pjax article>ol>li, .post .pjax article>ul>li{
+        margin-bottom: auto;
+        margin-left: auto;
+    }
+    .post .pjax article .article-entry li>ol>li, .post .pjax article .article-entry li>ul>li,.post .pjax article li>ol>li, .post .pjax article li>ul>li{
+        margin-bottom: auto;
+        margin-left: auto;
+    }
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+    .nav-right:before {
+        content: ' ';
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.3;
+        background: url("https://i.loli.net/2019/07/22/5d3521411f3f169375.png");
+        background-repeat: no-repeat;
+        background-position: 50% 0;
+        -ms-background-size: cover;
+        -o-background-size: cover;
+        -moz-background-size: cover;
+        -webkit-background-size: cover;
+        background-size: cover;
+    }
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>
