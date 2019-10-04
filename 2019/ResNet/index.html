@@ -2,9 +2,9 @@
 <html>
 <head><meta name="generator" content="Hexo 3.9.0">
   <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
-  <title>Faster R-CNN | MapleFlying</title>
-  <meta name="keywords" content=" Object Detection ">
-  <meta name="description" content="Faster R-CNN | MapleFlying">
+  <title>ResNet | MapleFlying</title>
+  <meta name="keywords" content=" Image Classification ">
+  <meta name="description" content="ResNet | MapleFlying">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <meta name="description" content="@[toc] Declaration此为个人原创的选译笔记，仅供参考。  原载于：Faster R-CNN 选译自：Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks  3. Region Proposal NetworksRPN 读入一张任意大小的照片，输出一批 rectangular ob">
 <meta name="keywords" content="Object Detection">
@@ -231,9 +231,9 @@
 </aside>
 <div class="post">
     <div class="pjax">
-        <article id="post-Faster-R-CNN" class="article article-type-post" itemscope itemprop="blogPost">
+        <article id="post-ResNet" class="article article-type-post" itemscope itemprop="blogPost">
     
-        <h1 class="article-title">Faster R-CNN</h1>
+        <h1 class="article-title">ResNet</h1>
     
     <div class="article-meta">
         
@@ -248,19 +248,19 @@
         
         <span class="tag">
             
-            <a href="javascript:" class="color2">Object Detection</a>
+            <a href="javascript:" class="color1">Image Classification</a>
             
         </span>
         
     </div>
     <div class="article-meta">
         
-        创建时间:<time class="date" title='更新时间: 2019-09-29'>2019-09-22</time>
+        创建时间:<time class="date" title='更新时间: 2019-10-05'>2019-09-22</time>
         
     </div>
     <div class="article-meta">
         
-        <span>字数:2.7k</span>
+        <span>字数:2.2k</span>
         
         
         <span id="busuanzi_container_page_pv">
@@ -279,7 +279,7 @@
     
     <div class="toc-ref">
     
-        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Declaration"><span class="toc-text">Declaration</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Region-Proposal-Networks"><span class="toc-text">3. Region Proposal Networks</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Translation-Invariant-Anchors"><span class="toc-text">Translation-Invariant Anchors</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#A-Loss-Function-for-Learning-Region-Proposals"><span class="toc-text">A Loss Function for Learning Region Proposals</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Optimization"><span class="toc-text">Optimization</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Sharing-Convolutional-Features-for-Region-Proposal-and-Object-Detection"><span class="toc-text">Sharing Convolutional Features for Region Proposal and Object Detection</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Implementation-Details"><span class="toc-text">Implementation Details</span></a></li></ol></li></ol>
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Declaration"><span class="toc-text">Declaration</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Deep-Residual-Learning"><span class="toc-text">3. Deep Residual Learning</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-Residual-Learning"><span class="toc-text">3.1. Residual Learning</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-Identity-Mapping-by-Shortcuts"><span class="toc-text">3.2. Identity Mapping by Shortcuts</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-Network-Architectures"><span class="toc-text">3.3. Network Architectures</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Plain-Network"><span class="toc-text">Plain Network</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Residual-Network"><span class="toc-text">Residual Network</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4-Implementation"><span class="toc-text">3.4. Implementation</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-Experiments"><span class="toc-text">4. Experiments</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-ImageNet-Classiﬁcation"><span class="toc-text">4.1. ImageNet Classiﬁcation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Identity-vs-Projection-Shortcuts"><span class="toc-text">Identity vs. Projection Shortcuts</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Deeper-Bottleneck-Architectures"><span class="toc-text">Deeper Bottleneck Architectures</span></a></li></ol></li></ol></li></ol>
     
 <style>
     .left-col .switch-btn,
@@ -295,280 +295,233 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p><div class='inner-toc'><h1>Contents</h1><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Declaration"><span class="toc-text">Declaration</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Region-Proposal-Networks"><span class="toc-text">3. Region Proposal Networks</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Translation-Invariant-Anchors"><span class="toc-text">Translation-Invariant Anchors</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#A-Loss-Function-for-Learning-Region-Proposals"><span class="toc-text">A Loss Function for Learning Region Proposals</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Optimization"><span class="toc-text">Optimization</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Sharing-Convolutional-Features-for-Region-Proposal-and-Object-Detection"><span class="toc-text">Sharing Convolutional Features for Region Proposal and Object Detection</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Implementation-Details"><span class="toc-text">Implementation Details</span></a></li></ol></li></ol></div></p>
+        <p><div class='inner-toc'><h1>Contents</h1><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Declaration"><span class="toc-text">Declaration</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Deep-Residual-Learning"><span class="toc-text">3. Deep Residual Learning</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-Residual-Learning"><span class="toc-text">3.1. Residual Learning</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-Identity-Mapping-by-Shortcuts"><span class="toc-text">3.2. Identity Mapping by Shortcuts</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-Network-Architectures"><span class="toc-text">3.3. Network Architectures</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Plain-Network"><span class="toc-text">Plain Network</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Residual-Network"><span class="toc-text">Residual Network</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4-Implementation"><span class="toc-text">3.4. Implementation</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-Experiments"><span class="toc-text">4. Experiments</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-ImageNet-Classiﬁcation"><span class="toc-text">4.1. ImageNet Classiﬁcation</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#Identity-vs-Projection-Shortcuts"><span class="toc-text">Identity vs. Projection Shortcuts</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Deeper-Bottleneck-Architectures"><span class="toc-text">Deeper Bottleneck Architectures</span></a></li></ol></li></ol></li></ol></div></p>
 <h1 id="Declaration"><a href="#Declaration" class="headerlink" title="Declaration"></a>Declaration</h1><p>此为个人原创的选译笔记，仅供参考。</p>
 <ul>
-<li>原载于：<a href="https://shzhao17.github.io/2019/Faster-R-CNN/">Faster R-CNN</a></li>
-<li>选译自：<a href="https://arxiv.org/abs/1506.01497" target="_blank" rel="noopener">Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks</a></li>
+<li>原载于：<a href="https://shzhao17.github.io/2019/ResNet/">ResNet</a></li>
+<li>选译自：<a href="https://arxiv.org/abs/1512.03385" target="_blank" rel="noopener">Deep Residual Learning for Image Recognition</a></li>
 </ul>
-<h1 id="3-Region-Proposal-Networks"><a href="#3-Region-Proposal-Networks" class="headerlink" title="3. Region Proposal Networks"></a>3. Region Proposal Networks</h1><p>RPN 读入一张任意大小的照片，输出一批 rectangular object proposals</p>
+<h1 id="3-Deep-Residual-Learning"><a href="#3-Deep-Residual-Learning" class="headerlink" title="3. Deep Residual Learning"></a>3. Deep Residual Learning</h1><h2 id="3-1-Residual-Learning"><a href="#3-1-Residual-Learning" class="headerlink" title="3.1. Residual Learning"></a>3.1. Residual Learning</h2><p>假设 $\mathcal{H(\textbf{x})}$ 是将被一些 stacked layers 所拟合的 underlying mapping</p>
 <ul>
-<li>每个 object proposal 都有一个 objectness score</li>
-<li>objectness 衡量了被归类为某个 object class 而非 background 的可能性</li>
-<li>我们以 FCN 来建模这个过程，并在此章节加以说明</li>
+<li>这些 stacked layers 并不一定就是整个 network</li>
+<li>其中，$\textbf{x}$ 是这些 stacked layers 的第一层的输入</li>
 </ul>
-<p>我们的最终目的是与 Fast R-CNN object detection network 共享计算</p>
+<p>若是假设多个 nonlinear layers 能渐进地近似 complicated functions，</p>
 <ul>
-<li>因此，我们假设这两个 network 共享同一套 conv layers</li>
+<li>那么就相当于假设了它们也能渐进地近似 residual functions</li>
+<li>residual functions 即是 $\mathcal{H(\textbf{x})} - \textbf{x}$</li>
+<li>这里假设了 layers 的输入与输出有着相同的维度</li>
 </ul>
-<p>我们通过实验考察了两个 model：</p>
+<p>因此，与其指望这些 stacked layers 去近似 $\mathcal{H(\textbf{x})}$</p>
 <ul>
-<li>ZF 有 5 个可共享的 conv layers</li>
-<li>VGG 有 13 个可共享的 conv layers</li>
+<li>我们明确地让这些 layers 去近似一个 residual function $\mathcal{F}(\textbf{x}) := \mathcal{H}(\textbf{x}) - \textbf{x}$</li>
+<li>而 original function 则变成了 $\mathcal{F}(\textbf{x}) + \textbf{x}$</li>
+<li>就假设而言，这两种形式应该都能渐进地近似预期的 functions，但其学习的难易度可能不同</li>
 </ul>
-<p>我们在 conv feature map 上滑动一个 mini-network 以生成 region proposals</p>
+<p>与 degradation problem 相关的反直觉的现象（见 Figure 1）促成了这样的公式重组</p>
 <ul>
-<li>这个 conv feature map 正是共享的最后一层 conv layer 的输出</li>
+<li>Figure 1 展示了 deeper network 有 higher training error 与 higher test error</li>
 </ul>
-<p>mini-network 总是与 conv feature map 上某个 $n \times n$ 的像素窗口 fully connected</p>
+<p>如在 introduction 时所述，如果新增的 layers 能被构造为 identity mappings，</p>
 <ul>
-<li>每个因滑动而不同的像素窗口（即，滑动窗口）都被映射成一个低维向量<ul>
-<li>ZF 是 256 维</li>
-<li>VGG 是 512 维</li>
+<li>一个 deeper model 的 training error 不应该比它的 shallower 版本更高</li>
+<li>译者注：identity mappings 是指从自身到自身的映射，即 $\mathcal{H(\textbf{x})} = \textbf{x}$</li>
 </ul>
-</li>
-<li>这个向量被送入两个 FC 层分支：<ul>
-<li>分支一用于 box regression，简写为 reg</li>
-<li>分支二用于 box classification，简写为 cls</li>
-</ul>
-</li>
-<li>本文采用了 n = 3，并指出 effective receptive field（对 input image 而言）仍是大的<ul>
-<li>ZF 有 171 pixels</li>
-<li>VGG 有 228 pixels</li>
-</ul>
-</li>
-</ul>
-<p>因为像素窗口形成于 mini-network 的滑动</p>
+<p>degradation problem 暗示了 solvers 可能难以通过多个 nonlinear layers 来近似 identity mappings</p>
+<p>随着 residual learning 的公式重组，如果 identity mappings 是 optimal，</p>
 <ul>
-<li>所有的像素窗口都共享同一套 FC 层</li>
-<li>此架构可实现如下：<ul>
-<li>1 个 $n \times n$ 的 conv layer，再加上 2 个 $1 \times 1$ conv layers（分别用于 reg 与 cls）</li>
-<li>ReLU 层被用于处理 $n \times n$ 的 conv layer 的输出。</li>
+<li>solvers 只需要简单地把多个 nonlinear layers 的 weights 推向 0，就能逼近 identity mappings</li>
 </ul>
-</li>
-</ul>
-<h2 id="Translation-Invariant-Anchors"><a href="#Translation-Invariant-Anchors" class="headerlink" title="Translation-Invariant Anchors"></a>Translation-Invariant Anchors</h2><p>对于每个滑动窗口，我们同时预测 $k$ 个 region proposals，因此：</p>
+<p>在现实情况下，identity mappings 不可能是 optimal</p>
 <ul>
-<li>reg 层有 $4k$ 个输出，分别编码了 $k$ 个 boxes 的坐标</li>
-<li>cls 层输出 $2k$ 个 scores，分别衡量了 $k$ 个 proposal 属于 object / not-object 的可能性</li>
-<li>这 k 个 proposals 是相对于 $k$ 个 reference boxes（即，anchors）参数化而成的</li>
+<li>但我们的公式重组有助于 precondition 现实的问题 </li>
 </ul>
-<p>每个 anchor 都被置于当前滑动窗口的中心，其尺寸符合某种 scale 与 aspect ratio</p>
+<p>如果 optimal function 更接近于一个 identity mapping 而不是一个 zero mapping</p>
 <ul>
-<li>我们采用了 3 种 scales 与 3 种 aspect ratios，在每个滑动窗口处产生了 $k = 9$ 个 anchors</li>
-<li>对于一张 $W \times H$（约为 2400） 的 conv feature map，共有 $WHk$ 个 anchors</li>
+<li>solver 更容易以 identity mapping 为参照来找到偏差，而非学习全新的 function</li>
 </ul>
-<p>我们的方法有个重要的特性是，它是 translation invariant 的</p>
+<p>我们将在实验中展示，学到的 residual functions 通常有 small responses</p>
 <ul>
-<li>就 anchors 而言</li>
-<li>也就计算相对于 anchors 的 proposal 的 functions 而言</li>
+<li>这意味着 identity mappings 提供了合理的 preconditioning</li>
+<li>译者注：precondition 可以简单地理解为：预热、预处理、预先准备</li>
+<li>译者注：identity mappings 可作为 optimal function 的参照，相当于预热了 optimal function</li>
 </ul>
-<p>相比之下，MultiBox 方法使用 k-means 来生成 800 个 anchors，却不是 translation invariant</p>
+<h2 id="3-2-Identity-Mapping-by-Shortcuts"><a href="#3-2-Identity-Mapping-by-Shortcuts" class="headerlink" title="3.2. Identity Mapping by Shortcuts"></a>3.2. Identity Mapping by Shortcuts</h2><p>我们每（隔）几个 stacked layers 就采用 residual learning</p>
 <ul>
-<li>当 object 在 image 里移动了位置，产生了 translation（位移）</li>
-<li>proposal 也应该相应地移动，而同一个 function 应该仍能预测出这些位置的 proposal</li>
-<li>因为 MultiBox 方法并非 translation invariant，它需要一个 $(4+1) \times 800$ 维的输出层</li>
-<li>而我们的方法只需要一个 $(4+2) \times 9$ 维的输出层</li>
+<li>一个 building block 被展示在 Figure 2</li>
 </ul>
-<p>我们 proposal 层的参数少了一个数量级，因此更不容易在小数据集（如 PASCAL VOC）上 overfit</p>
-<ul>
-<li>对比采用了 GoogLeNet 的 MultiBox 的 27M 个参数</li>
-<li>采用了 VGG-16 的 RPN 只需要 2.4M 个参数</li>
-</ul>
-<h2 id="A-Loss-Function-for-Learning-Region-Proposals"><a href="#A-Loss-Function-for-Learning-Region-Proposals" class="headerlink" title="A Loss Function for Learning Region Proposals"></a>A Loss Function for Learning Region Proposals</h2><p>训练 RPN 时，我们为每个 anchor 指定一个 binary class label，以指示它是否一个 object：</p>
-<ul>
-<li>我们为符合以下任一情况的 anchor 都指定了 positive label（即，是 object）：<ul>
-<li>对于每个 ground-truth box，与之 IoU 重叠率最高的 anchor(s) </li>
-<li>对于每个 ground-truth box，与之 IoU 重叠率高于 0.7 的 anchor(s)</li>
-<li>单个 ground-truth box 可能为多个 anchors 指定了 positive labels</li>
-</ul>
-</li>
-<li>如果某 anchor 与任意 ground-truth box 的 IoU 重叠率都低于 0.3，它有 negative label</li>
-<li>没有 label 的 anchors 将无助于 training</li>
-</ul>
-<p>根据上述定义，我们最小化如 Fast R-CNN 的 multi-task loss 的 objective function</p>
-<p>给定一张 image，我们的 loss function 定义如下：</p>
+<p>本文正式地定义一个 building block 为</p>
 <script type="math/tex; mode=display">
-L({p_i},{t_i}) = \frac{1}{N_{cls}} \sum_i L_{cls}(p_i, p_i^*) + \lambda \frac{1}{N_{reg}} \sum_i p_i^* L_{reg}(t_i,t_i^*)</script><p>此处，</p>
+\begin{align}
+\textbf{y} = \mathcal{F}(\textbf{x}, \{W_i\}) + \textbf{x}\tag{1}
+\end{align}</script><p>其中，</p>
 <ul>
-<li>$i$ 是某 anchor 在 mini-batch 里的 index</li>
-<li>$p_i$ 是 anchor $i$ 是 object 的预测概率</li>
-<li>$p_i^\star$ 是 ground-truth label<ul>
-<li>$p_i^\star = 1$ 若 anchor $i$ 有 positive label</li>
-<li>$p_i^\ast = 0$ 若 anchor $i$ 有 negative label</li>
+<li>$\textbf{x}$ 与 $\textbf{y}$ 是所在 layers 的 input vector 与 output vector</li>
+<li>$\mathcal{F}(\textbf{x}, \{W_i\})$ 是要被学习的 residual mapping</li>
 </ul>
-</li>
-<li>$t_i$ 是预测的 bounding box 的 4 个参数化后的坐标向量</li>
-<li>$t_i^\star$ 是 anchor $i$ 对应的 ground-truth box，若它有 positive label</li>
-<li>$L_{cls}$ 是 classification loss，是两个类别（object vs. not object）的 log loss</li>
-<li>至于 regression loss，我们采用 $L_{reg}(t_i,t_i^\star)=R(t_i-t_i^\star)$<ul>
-<li>$R$ 是 robust loss function，即 $\text{smooth}_{L_1}(x)$</li>
+<p>在 Figure 2 所示的例子里，它有两个 layers，且满足 $\mathcal{F} = W_2 \sigma (W_1 \textbf{x})$</p>
+<ul>
+<li>$\sigma$ 是 ReLU</li>
+<li>biases（在图中）被省略了，以简化符号</li>
 </ul>
-</li>
-<li>$p_i^\star L_{reg}$ 表示 regression loss<ul>
-<li>只对 positive anchor（$p_i^\star = 1$）有效</li>
-<li>且对 negative anchor（$p_i^\star = 0$）无效</li>
-</ul>
-</li>
-<li>cls 层与 reg 层的输出分别由 $\{p_i\}$ 与 $\{t_i\}$ 所组成<ul>
-<li>这两项被以 $N_{cls}$，$N_{reg}$，与一个平衡权重 $\lambda$ 来 normalize</li>
+<p>$\mathcal{F} + \textbf{x}$ 的操作由一个 shortcut connection 与 element-wise addition 来执行</p>
+<p>在 addition 之后，我们会附上 nonlinearity，即如 Figure 2 所示的 $\sigma(\textbf{y})$</p>
+<p>Equation 1 里的 shortcut connections 既不引入 extra parameter 也不引入 computation complexity</p>
+<ul>
+<li>这不仅在实践中具有吸引力，而且在我们比较 plain networks 与 residual networks 也很重要</li>
+<li><p>我们可以公平地比较 plain/residual networks</p>
+<ul>
+<li>它们可以同时具有等量的 parameters, depth, width, 与 computational cost</li>
+<li>除了可以被忽略的 element-wise addition</li>
 </ul>
 </li>
 </ul>
-<p>对于 regression，我们对 4 个坐标采用以下参数化公式：</p>
+<p>Equation 1 里的 $\textbf{x}$ 与 $\mathcal{F}$ 的 dimensions 必须相等</p>
+<ul>
+<li>若非如此（如在改变 input/output channels 时）</li>
+<li>我们可对 shortcut connections 进行 linear projection $W_s$ 来匹配 dimensions</li>
+</ul>
 <script type="math/tex; mode=display">
-\begin{array}{}
-t_x = (x - x_a) / w_a & & t_x^\star = (x^\star - x_a) / w_a \\
-t_y = (y - y_a) / h_a & & t_y^\star = (y^\star - y_a) / h_a \\
-t_w = \log (w / w_a) & & t_w^\star = \log (w^\star / w_a) \\
-t_h = \log (h / h_a) & & t_h^\star = \log (h^\star / h_a)
-\end{array}</script><p>其中，</p>
+\begin{align}
+\textbf{y} = \mathcal{F}(\textbf{x}, \{W_i\}) + W_s \textbf{x}\tag{2}
+\end{align}</script><p>我们也能在 Equation 1 里使用一个 square matrix $W_s$</p>
 <ul>
-<li>$x$, $y$, $w$, $h$ 表示 box 的中心坐标、宽、高</li>
-<li>$(x,y,w,h)$, $(x_a,\cdots)$, $(x^\star,\cdots)$ 分别是 predicted box, anchor box, ground-truth box 的变量</li>
-<li>这可被认为是：基于 anchor box 生成的 bounding box 向附近 ground-truth box 的 regression</li>
+<li>但我们会在实验中展示，identity mapping 已足以解决 degradation problem，而且它很经济</li>
+<li>因此，$W_s$ 只用于匹配 dimensions</li>
 </ul>
-<p>然而，我们进行 bounding-box regression 的方式不同于之前基于 feature map 的方法</p>
+<p>residual function $\mathcal{F}$ 的形式是灵活的</p>
+<p>本文的实验里，$\mathcal{F}$ 有两或三个 layers（如 Figure 5 所示），而拥有更多 layers 也是可能的</p>
+<p>但如果 $\mathcal{F}$ 只有单一 layer，</p>
 <ul>
-<li><p>在之前的方法里，bounding-box regression 是在从任意大小的 region 算出的 features 上进行的</p>
-</li>
-<li><p>regression weights 被所有不同大小的区域所共享</p>
-</li>
+<li>Equation 1 就类似于一个 linear layer：$\textbf{y} = W_1 \textbf{x} + \textbf{x}$</li>
+<li>对此，我们还没有观察到优势</li>
 </ul>
-<p>在我们的方法里，用于 regression 的 features 在 feature map 上有着同样的大小（$n \times n$）</p>
+<p>为简化起见，上述符号是基于 fully-connected layers 的</p>
+<p>但它们也适用于 convolutional layers</p>
 <ul>
-<li><p>为了应对不同的大小，我们会学习出 $k$ 个 bounding-box regressors</p>
-</li>
-<li><p>每个 regressor 只负责一个 scale 与一个 aspect ratio</p>
-</li>
-<li><p>这 $k$ 个 regressors 之间并不共享 weights</p>
-</li>
-<li><p>因此，它仍能预测不同大小的 boxes，即使 features 有着固定的大小/尺寸</p>
-</li>
+<li>$\mathcal{F}(\textbf{x}, \{W_i\})$ 能表示多个 convolutional layers</li>
+<li>element-wise addition 在两个 feature maps 上进行，channel by channel</li>
 </ul>
-<h2 id="Optimization"><a href="#Optimization" class="headerlink" title="Optimization"></a>Optimization</h2><p>RPN 被自然地实现为 FCN，并可以用 BP 与 SGD 来 end-to-end 地 train</p>
-<p>我们以 image-centric 的采样策略来 train 这个 network</p>
+<h2 id="3-3-Network-Architectures"><a href="#3-3-Network-Architectures" class="headerlink" title="3.3. Network Architectures"></a>3.3. Network Architectures</h2><p>我们已经试验了多种 plain/residual nets，并观察到一致的现象</p>
+<p>为便于讨论，我们描述基于 ImageNet 的两个 models 如下。</p>
+<h3 id="Plain-Network"><a href="#Plain-Network" class="headerlink" title="Plain Network"></a>Plain Network</h3><p>我们的 plain baselines 主要受 VGG nets 的设计哲学所启发</p>
 <ul>
-<li>每批 mini-batch 来自于单张 image</li>
-<li>一张 image 包含了多个 positive anchors 与 negative anchors</li>
-</ul>
-<p>如果我们为所有 anchors 来 optimize 那些 loss functions，它会偏向 negative samples</p>
+<li><p>convolutional layers 多数选用 $3 \times 3$ filters，并遵循两个简单的设计规则：</p>
 <ul>
-<li>因为 negative samples 占了大多数，将会支配了我们的 optimization</li>
+<li>若 output feature map 的大小不变，filters 的数量保持不变</li>
+<li>若 output feature map 的大小减半，filters 的数量也会翻倍<ul>
+<li>这样可以保持 per-layer time complexity</li>
 </ul>
-<p>反之，我们在一张 image 里随机采样 256 个 anchors 来计算 mini-batch 的 loss function</p>
+</li>
+</ul>
+</li>
+<li><p>我们直接通过 stride 为 2 的 convolutional layers 来进行 downsampling</p>
+</li>
+<li>network 的末端是 global average pooling layer 与 1000-way FC layer，再带上 softmax</li>
+<li>weighted layers 的总数量为 34</li>
+</ul>
+<p>值得注意的是，我们的 model 比 VGG nets 有着更少的 filters 与更低的 complexity</p>
 <ul>
-<li><p>使得样本里 positive anchors 与 negative anchors 有着接近 1:1 的比例</p>
+<li><p>我们的 34-layer baseline 有 3.6 billion FLOPs (multiply-adds)</p>
 </li>
-<li><p>若 image 里只有少于 128 个 positive anchors，我们为此 mini-batch 填充 negative anchors</p>
+<li><p>这只是 VGG-19 (19.6 billion FLOPs) 的 18%</p>
 </li>
 </ul>
-<p>为了随机地 initialize 所有 new layers，我们从 0 均值 与 0.01 标准差的高斯分布里采样 weights</p>
+<h3 id="Residual-Network"><a href="#Residual-Network" class="headerlink" title="Residual Network"></a>Residual Network</h3><p>基于上述的 plain network，我们插入 shortcut connections 将之转化为对应的 residual 版本</p>
+<p>如果 input 与 output 有相同的 dimensions，Equation 1 的 identity shortcuts 可被直接使用</p>
+<p>当 dimensions 增加时，我们考察以下两个选项：</p>
 <ul>
-<li>所有 other layers（共享的 conv layers）都是 initialize 与 pre-train 自 ImageNet classification</li>
-</ul>
-<p>我们调整了 ZF net 的所有层与 VGG conv3_1 及以上的层来节省内存</p>
-<p>我们为 60k mini-batches 采用了 0.001 的学习率</p>
+<li><p>shortcut 仍进行 identity mapping</p>
 <ul>
-<li>而为接下来在 PASCAL 数据集的 20k mini-batches 采用了 0.0001 的学习率</li>
+<li>对于新增的 dimensions，以 0 填充</li>
+<li>此选项并不引入 extra parameter</li>
 </ul>
-<p>我们采用了 0.9 的 momentum 与 0.0005 的 weight decay</p>
-<p>我们的实现是基于 Caffe 的</p>
-<h2 id="Sharing-Convolutional-Features-for-Region-Proposal-and-Object-Detection"><a href="#Sharing-Convolutional-Features-for-Region-Proposal-and-Object-Detection" class="headerlink" title="Sharing Convolutional Features for Region Proposal and Object Detection"></a>Sharing Convolutional Features for Region Proposal and Object Detection</h2><p>至此，我们已经描述了如何为生成 region proposal 来 train 一个 network</p>
+</li>
+<li><p>采用 Equation 2 的 projection shortcut 来匹配 dimensions</p>
 <ul>
-<li><p>但还没有提到将利用这些 proposals 的 region-based object detection CNN</p>
+<li>通过 $1 \times 1$ convolutions 来实现</li>
+</ul>
 </li>
-<li><p>对于 detection network，我们采用 Fast R-CNN，并介绍一个算法来学习 conv layers</p>
+</ul>
+<p>当 shortcuts 要跨越两种尺寸的 feature maps 时，这两个选项的 stride 均为 2</p>
+<h2 id="3-4-Implementation"><a href="#3-4-Implementation" class="headerlink" title="3.4. Implementation"></a>3.4. Implementation</h2><p>我们在 ImageNet 上的实现遵循如 [21,40] 的实践：</p>
 <ul>
-<li>这些 conv layers 将被 RPN 与 Fast R-CNN 所共享</li>
+<li>每张 image 被 rescale<ul>
+<li>rescale 前在 [256, 480] 的区间里随机采样得到其短边的长度</li>
+<li>这可以作为一种 scale augmentation [40]</li>
 </ul>
 </li>
+<li>从 image 或其 horizontal flip 中随机采样一个 $224 \times 224$ 的区域，并对每个 pixel 减去均值</li>
+<li>采用 [21] 里标准的 color augmentation</li>
 </ul>
-<p>RPN 与 Fast R-CNN 若是被分开独立地 train，将会以不同的方式来修改它们的 conv layers</p>
+<p>依循 [16]，我们在每个 convolution 之后与 activation 之前都采用了 batch normalization (BN) [16]</p>
 <ul>
-<li>我们因此需要开发一套技术来允许两个 network 共享 conv layers，而非学习两个分开的 networks</li>
-<li>这不是简单定义单个 network 来包含 RPN 与 Fast R-CNN，再以 BP 来 jointly optimize 它</li>
-<li>原因是 Fast R-CNN 的 training 依赖于固定的 object proposals<ul>
-<li>目前仍不清楚的是，如果同时改变 proposal 的生成机制， Fast R-CNN 的学习会不会收敛</li>
-<li>这样的 joint optimizing 是 future work 的一个 interesting question</li>
+<li>我们如 [12] 所述地 initialize 那些 weights，并从头开始 train 所有的 plain/residual nets</li>
+<li>我们使用了 mini-batch 大小为 256 的 SGD</li>
+<li>learning rate 初始为 0.1，当 error 不再减少时，它降为原值的十分之一</li>
+<li>models 被训练了至多 $60 \times 10^4$ 个 iterations</li>
+<li>我们选用了 0.0001 的 weight decay 与 0.9 的 momentum</li>
+<li>依循 [16]，我们并没有使用了 dropout</li>
 </ul>
-</li>
-</ul>
-<p>我们开发了实用的 4 步 training 算法来通过 alternating optimization 学习 shared features：</p>
+<p>测试时，我们采用了 standard 10-crop testing [21]</p>
 <ul>
-<li>第一步，如上所述地 train RPN<ul>
-<li>RPN network 被 initialize 自 ImageNet pre-trained model</li>
-<li>再针对 region proposal 的任务进行 end-to-end 地 fine-tune </li>
+<li>为了获得最好的结果，我们采用了 [40, 12] 里的 fully-convolutional form</li>
+<li>并对在 multiple scales 上获得的 scores 取均值</li>
+<li>images 被重新缩放，使其短边的长度是 224, 256, 384, 480, 640 之一</li>
 </ul>
-</li>
-<li>第二步，通过 Fast R-CNN 来 train 另一个独立的 detection network<ul>
-<li>detection network 也是 initialize 自 ImageNet pre-trained model</li>
-<li>关键是，采用了第一步的 RPN 生成的 proposals</li>
-<li>此时，这两个 networks 并不共享 conv layers</li>
-</ul>
-</li>
-<li>第三步，采用 detection network 来初始化 RPN 的 training<ul>
-<li>但我们固定了 shared conv layers，只 fine-tune 专属于 RPN 的 layers</li>
-<li>现在这两个 networks 共享 conv layers</li>
-</ul>
-</li>
-<li>最后，在固定 shared conv layers 的同时，fine-tune 属于 Fast R-CNN 的 FC layers<ul>
-<li>如此一来，两个 networks 共享同样的 conv layers，并形成了统一的 network</li>
-</ul>
-</li>
-</ul>
-<h2 id="Implementation-Details"><a href="#Implementation-Details" class="headerlink" title="Implementation Details"></a>Implementation Details</h2><p>我们在 single-scale images 上 train 与 test 了 region proposal network 与 object detection network</p>
+<h1 id="4-Experiments"><a href="#4-Experiments" class="headerlink" title="4. Experiments"></a>4. Experiments</h1><h2 id="4-1-ImageNet-Classiﬁcation"><a href="#4-1-ImageNet-Classiﬁcation" class="headerlink" title="4.1. ImageNet Classiﬁcation"></a>4.1. ImageNet Classiﬁcation</h2><p>我们在 ImageNet 2012 classification 数据集上 evaluate 了我们的方法</p>
 <ul>
-<li>我们 re-scale 了这些 images，以使得它们的短边有 $s = 600$ 个 pixels<ul>
-<li>multi-scale feature extraction 可能增加 accuracy，但还没有好的 speed 与 accuracy 权衡</li>
+<li>此数据集由 1000 个 classes 组成</li>
 </ul>
-</li>
-<li>对于 ZF 与 VGG nets，最后的 conv layer 的 total stride 在 re-scaled image 上是 16 个 pixels<ul>
-<li>也就是说，若是在典型的 PASCAL image（$500 \times 375$）上，大约是 10 个 pixels</li>
-<li>即使是这么大的 stride，它依然有好的结果，虽然采用更小的 stride 可能会改进 accuracy</li>
-</ul>
-</li>
-</ul>
-<p>对于 anchors，我们</p>
+<p>models 在 1.28 million 张 training images 上 train，在 50k 张 validation images 上 evaluate</p>
+<p>我们也在 100k 张 test images 上获得了最终的结果，此结果来自 test server</p>
+<p>我们 evaluate 了 top-1 与 top-5 的 error rates</p>
+<h3 id="Identity-vs-Projection-Shortcuts"><a href="#Identity-vs-Projection-Shortcuts" class="headerlink" title="Identity vs. Projection Shortcuts"></a>Identity vs. Projection Shortcuts</h3><p>我们已经展示，parameter-free 的 identity shortcuts 有助于 training</p>
+<p>接下来，我们考察 Equation 2 的 projection shortcuts</p>
+<p>我们在 Table 3 比较了三个选项：</p>
+<p>(A) zero-padding shortcuts 用于增加 dimensions</p>
 <ul>
-<li>选用了 3 个 scale，其 box area 分别是 $128^2$, $256^2$, $512^2$ 个 pixels</li>
-<li>选用了 3 个 aspect ratios，分别是 $1:1$，$1:2$，$2:1$.</li>
+<li>那么，所有 shortcuts 都是 parameter-free</li>
+<li>如 Table 2 与 Figure 4 所示</li>
 </ul>
-<p>在预测 large proposals 的时候，算法允许采用那些大于 underlying receptive field 的 anchor boxes</p>
+<p>(B) projection shortcuts 用于增加 dimensions</p>
 <ul>
-<li><p>这样的预测不无可能，它仍能大致推断出 extent of object，即使只有 middle of object 是可见的</p>
-</li>
-<li><p>依此设计，我们并不需要 multi-scale features 或 multi-scale 滑动窗口来预测 large regions</p>
-</li>
-<li><p>这节省了大量的运行时间</p>
-</li>
+<li>那么，其他 shortcuts 都是 identity</li>
 </ul>
-<p>那些 cross image boundaries 的 anchor boxes 需要被小心处理</p>
+<p>(C) 所有 shortcuts 都是 projections</p>
+<p>Table 3 展示了这三个选项都比 plain networks 要好得多</p>
 <ul>
-<li>我们在 training 时忽略了所有 cross-boundary 的 anchors，因此它们并不会影响 loss<ul>
-<li>一张典型的 $1000 \times 600$ 的 image 大约有共 20k（$\approx 60 \times 40 \times 9$） 个 anchors</li>
-<li>忽略掉 cross-boundary anchors，每张 image 仍有大概 $6k$ 个 anchors 可用于 training</li>
-<li>如果它们没被忽略，将为 objective 带来巨大且难以纠正的错误项，training 也不会收敛</li>
-</ul>
-</li>
-<li>但在 testing 时，我们依然将 fully-convolutional RPN 应用于整张 image<ul>
-<li>这可能会产生 cross-boundary proposal boxes，但它们会被裁剪以贴合 image boundary</li>
-</ul>
-</li>
-</ul>
-<p>某些 RPN proposals 会彼此高度重叠</p>
+<li><p>B 略胜于 A</p>
 <ul>
-<li>为了降低冗余度，我们根据 proposal regions 的 cls score 对它们进行了 NMS<ul>
-<li>我们固定了 NMS 的 IoU threshold 为 0.7，使得每张 image 剩下约 $2k$ 个 proposal regions</li>
-<li>我们将展示，NMS 不会伤害最终的 detection accuracy，但会大幅降低 proposals 的数量</li>
+<li>我们认为，这是因为 A 的 zero-padded dimensions 确实没有 residual learning</li>
 </ul>
 </li>
-<li>NMS 之后，我们用 top-N ranked proposal regions 来作检测</li>
-<li>接下来，我们用 $2k$ 个 RPN proposals 来 train Fast R-CNN<ul>
-<li>但在 test 时会试验不同数量的 proposals</li>
+<li><p>C 略胜于 B</p>
+<ul>
+<li>我们将此归因于 extra parameters</li>
+<li>它们是由多至 13 个 projection shortcuts 引入的</li>
 </ul>
 </li>
 </ul>
+<p>但是，A/B/C之间的细微差异表明，projection shortcuts 并不是解决 degradation problem 的关键</p>
+<p>因此，在本文的余下部分，我们并没有采用选项 C，以减少 memory/time complexity 与 model sizes</p>
+<p>identity shortcuts 对于不增加下面介绍的 bottleneck architectures 的 complexity 尤其重要</p>
+<h3 id="Deeper-Bottleneck-Architectures"><a href="#Deeper-Bottleneck-Architectures" class="headerlink" title="Deeper Bottleneck Architectures"></a>Deeper Bottleneck Architectures</h3><p>接下来，我们将描述 ImageNet 的 deeper nets</p>
+<p>出于对 training time 的考虑，我们把 building block 修改为 bottleneck design</p>
+<p>对于每个 residual function $\mathcal{F}$，我们堆叠 3 layers 而非 2 layers （Figure 5）</p>
+<ul>
+<li>3 layers 分别是 $1 \times 1$、$3 \times 3$、$1 \times 1$ convolutions</li>
+<li>$1 \times 1$ layers 负责减少然后增加（还原） dimensions</li>
+<li>$3 \times 3$ layer 则是一个 input/output dimensions 都更小的 bottleneck</li>
+</ul>
+<p>如 Figure 5 的例子所示，3 layers 与 2 layers 这两种 designs 有相似的 time complexity</p>
+<p>parameter-free 的 identity shortcuts 对于 bottleneck architectures 尤其重要</p>
+<p>如果 Figure 5 里的 identity shortcut 被替换为 projection</p>
+<ul>
+<li>可以证明，time complexity 与 model size 将会翻倍</li>
+<li>因为，shortcut 连接在两个 high-dimensional ends</li>
+</ul>
+<p>因此，identity shortcuts 能为 bottleneck designs 提供了更有效的 models</p>
 
       
        
@@ -580,12 +533,12 @@ t_h = \log (h / h_a) & & t_h^\star = \log (h^\star / h_a)
 
 
 <div class="article_copyright">
-    <p><span class="copy-title">文章标题:</span>Faster R-CNN</p>
-    <p><span class="copy-title">文章字数:</span><span class="post-count">2.7k</span></p>
+    <p><span class="copy-title">文章标题:</span>ResNet</p>
+    <p><span class="copy-title">文章字数:</span><span class="post-count">2.2k</span></p>
     <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="MapleFlying">MapleFlying</a></p>
     <p><span class="copy-title">发布时间:</span>2019-09-22</p>
-    <p><span class="copy-title">最后更新:</span>2019-09-29</p>
-    <span class="copy-title">原始链接:</span><a class="post-url" href="/2019/Faster-R-CNN/" title="Faster R-CNN">https://shzhao17.github.io/2019/Faster-R-CNN/</a>
+    <p><span class="copy-title">最后更新:</span>2019-10-05</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/2019/ResNet/" title="ResNet">https://shzhao17.github.io/2019/ResNet/</a>
     <p>
         <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
     </p>

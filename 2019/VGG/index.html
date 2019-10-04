@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <!-- hexo-inject:begin --><!-- hexo-inject:end --><meta charset="utf-8">
+  <title>VGG | MapleFlying</title>
+  <meta name="keywords" content=" Image Classification ">
+  <meta name="description" content="VGG | MapleFlying">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="description" content="@[toc] Declaration此为个人原创的选译笔记，仅供参考。  原载于：Faster R-CNN 选译自：Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks  3. Region Proposal NetworksRPN 读入一张任意大小的照片，输出一批 rectangular ob">
+<meta name="keywords" content="Object Detection">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Faster R-CNN">
+<meta property="og:url" content="https://shzhao17.github.io/2019/Faster-R-CNN/index.html">
+<meta property="og:site_name" content="MapleFlying">
+<meta property="og:description" content="@[toc] Declaration此为个人原创的选译笔记，仅供参考。  原载于：Faster R-CNN 选译自：Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks  3. Region Proposal NetworksRPN 读入一张任意大小的照片，输出一批 rectangular ob">
+<meta property="og:locale" content="en">
+<meta property="og:updated_time" content="2019-09-29T09:14:42.714Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Faster R-CNN">
+<meta name="twitter:description" content="@[toc] Declaration此为个人原创的选译笔记，仅供参考。  原载于：Faster R-CNN 选译自：Faster R-CNN: Towards Real-Time Object Detection with Region Proposal Networks  3. Region Proposal NetworksRPN 读入一张任意大小的照片，输出一批 rectangular ob">
+
+
+<link rel="icon" href="/img/avatar.jpg">
+
+<link href="/css/style.css?v=1.0.1" rel="stylesheet">
+
+<link href="/css/hl_theme/atom-light.css?v=1.0.1" rel="stylesheet">
+
+<link href="//cdn.bootcss.com/animate.css/3.5.2/animate.min.css" rel="stylesheet">
+<link href="//cdn.bootcss.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+<script src="//cdn.bootcss.com/jquery/2.2.4/jquery.min.js"></script>
+<script src="/js/jquery.autocomplete.min.js?v=1.0.1"></script>
+
+<script src="//cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+<script>
+    hljs.initHighlightingOnLoad();
+</script>
+
+<script src="//cdn.bootcss.com/nprogress/0.2.0/nprogress.min.js"></script>
+
+
+
+<script src="//cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
+
+<script src="/js/iconfont.js?v=1.0.1"></script><!-- hexo-inject:begin --><!-- hexo-inject:end -->
+
+</head>
+<div style="display: none">
+  <input class="theme_disqus_on" value="false">
+  <input class="theme_preload_comment" value="false">
+  <input class="theme_blog_path" value>
+</div>
+
+<body>
+<!-- hexo-inject:begin --><!-- hexo-inject:end --><aside class="nav">
+    <div class="nav-left">
+        <a href="/" class="avatar_target">
+    <img class="avatar" src="/img/avatar.jpg" />
+</a>
+<div class="author">
+    <span>MapleFlying</span>
+</div>
+
+<div class="icon">
+    
+        
+    
+        
+        <a title="github" href="https://github.com/shzhao17" target="_blank">
+            
+                <svg class="iconfont-svg" aria-hidden="true">
+                    <use xlink:href="#icon-github"></use>
+                </svg>
+            
+        </a>
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+</div>
+
+
+
+
+<ul>
+    <li><div class="all active">Articles<small>(5)</small></div></li>
+    
+        
+            
+            <li><div data-rel="Machine">Machine<small>(5)</small></div>
+                
+            </li>
+            
+        
+    
+</ul>
+<div class="left-bottom">
+    <div class="menus">
+    
+    </div>
+    <div></div>
+</div>
+<input type="hidden" id="yelog_site_posts_number" value="5">
+<input type="hidden" id="yelog_site_word_count" value="10.8k">
+<div style="display: none">
+    <span id="busuanzi_value_site_uv"></span>
+    <span id="busuanzi_value_site_pv"></span>
+</div>
+
+    </div>
+    <div class="nav-right">
+        <div class="friends-area">
+    <div class="friends-title">
+        友情链接
+        <i class="back-title-list"></i>
+    </div>
+    <div class="friends-content">
+        <ul>
+            
+        </ul>
+    </div>
+</div>
+        <div class="title-list">
+    <form onkeydown="if(event.keyCode==13){return false;}">
+        <input class="search" type="text" placeholder="Search..." autocomplete="off"id="local-search-input" >
+        <i class="cross"></i>
+        <span>
+            <label for="tagswitch">Tags:</label>
+            <input id="tagswitch" type="checkbox" style="display: none" />
+            <i id="tagsWitchIcon"></i>
+        </span>
+    </form>
+    <div class="tags-list">
+    
+    <li class="article-tag-list-item">
+        <a href="javascript:" class="color2">Object Detection</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a href="javascript:" class="color1">Image Classification</a>
+    </li>
+    
+    <li class="article-tag-list-item">
+        <a href="javascript:" class="color4">Glossary</a>
+    </li>
+    
+    <div class="clearfix"></div>
+</div>
+
+    
+    <nav id="title-list-nav">
+        
+        <a  class="Machine "
+           href="/2019/Faster-R-CNN/"
+           data-tag="Object Detection"
+           data-author="" >
+            <span class="post-title" title="Faster R-CNN">Faster R-CNN</span>
+            <span class="post-date" title="2019-09-22">2019-09-22</span>
+        </a>
+        
+        <a  class="Machine "
+           href="/2019/Fast-R-CNN/"
+           data-tag="Object Detection"
+           data-author="" >
+            <span class="post-title" title="Fast R-CNN">Fast R-CNN</span>
+            <span class="post-date" title="2019-09-22">2019-09-22</span>
+        </a>
+        
+        <a  class="Machine "
+           href="/2019/ResNet/"
+           data-tag="Image Classification"
+           data-author="" >
+            <span class="post-title" title="ResNet">ResNet</span>
+            <span class="post-date" title="2019-09-22">2019-09-22</span>
+        </a>
+        
+        <a  class="Machine "
+           href="/2019/Glossary/"
+           data-tag="Glossary"
+           data-author="" >
+            <span class="post-title" title="Glossary">Glossary</span>
+            <span class="post-date" title="2019-09-22">2019-09-22</span>
+        </a>
+        
+        <a  class="Machine "
+           href="/2019/VGG/"
+           data-tag="Image Classification"
+           data-author="" >
+            <span class="post-title" title="VGG">VGG</span>
+            <span class="post-date" title="2019-09-22">2019-09-22</span>
+        </a>
+        
+    </nav>
+</div>
+    </div>
+    <div class="hide-list">
+        <div class="semicircle">
+            <div class="brackets first"><</div>
+            <div class="brackets">&gt;</div>
+        </div>
+    </div>
+</aside>
+<div class="post">
+    <div class="pjax">
+        <article id="post-VGG" class="article article-type-post" itemscope itemprop="blogPost">
+    
+        <h1 class="article-title">VGG</h1>
+    
+    <div class="article-meta">
+        
+        
+        
+        <span class="book">
+            
+                <a href="javascript:" data-rel="Machine">Machine</a>
+            
+        </span>
+        
+        
+        <span class="tag">
+            
+            <a href="javascript:" class="color1">Image Classification</a>
+            
+        </span>
+        
+    </div>
+    <div class="article-meta">
+        
+        创建时间:<time class="date" title='更新时间: 2019-10-05'>2019-09-22</time>
+        
+    </div>
+    <div class="article-meta">
+        
+        <span>字数:3.1k</span>
+        
+        
+        <span id="busuanzi_container_page_pv">
+            阅读:<span id="busuanzi_value_page_pv">
+                <span class="count-comment">
+                    <span class="spinner">
+                      <div class="cube1"></div>
+                      <div class="cube2"></div>
+                    </span>
+                </span>
+            </span>
+        </span>
+        
+        
+    </div>
+    
+    <div class="toc-ref">
+    
+        <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Declaration"><span class="toc-text">Declaration</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-ConvNet-Configurations"><span class="toc-text">2 ConvNet Configurations</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-Architecture"><span class="toc-text">2.1 Architecture</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-Configurations"><span class="toc-text">2.2 Configurations</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-Discussion"><span class="toc-text">2.3 Discussion</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Classification-Framework"><span class="toc-text">3 Classification Framework</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-Training"><span class="toc-text">3.1 Training</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-Testing"><span class="toc-text">3.2 Testing</span></a></li></ol></li></ol>
+    
+<style>
+    .left-col .switch-btn,
+    .left-col .switch-area {
+        display: none;
+    }
+    .toc-level-3 i,
+    .toc-level-3 ol {
+        display: none !important;
+    }
+</style>
+</div>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><div class='inner-toc'><h1>Contents</h1><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Declaration"><span class="toc-text">Declaration</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2-ConvNet-Configurations"><span class="toc-text">2 ConvNet Configurations</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-Architecture"><span class="toc-text">2.1 Architecture</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-Configurations"><span class="toc-text">2.2 Configurations</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-Discussion"><span class="toc-text">2.3 Discussion</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-Classification-Framework"><span class="toc-text">3 Classification Framework</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-Training"><span class="toc-text">3.1 Training</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-Testing"><span class="toc-text">3.2 Testing</span></a></li></ol></li></ol></div></p>
+<h1 id="Declaration"><a href="#Declaration" class="headerlink" title="Declaration"></a>Declaration</h1><p>此为个人原创的选译笔记，仅供参考。</p>
+<ul>
+<li>原载于：<a href="https://shzhao17.github.io/2019/VGG/">VGG</a></li>
+<li>选译自：<a href="https://arxiv.org/abs/1409.1556" target="_blank" rel="noopener">Very Deep Convolutional Networks for Large-Scale Image Recognition</a></li>
+</ul>
+<h1 id="2-ConvNet-Configurations"><a href="#2-ConvNet-Configurations" class="headerlink" title="2 ConvNet Configurations"></a>2 ConvNet Configurations</h1><p>为了公平地度量新增 ConvNet depth 带来的改进，所有 ConvNet layer configurations 都遵循同样的原则</p>
+<ul>
+<li>在此章节，我们先描述 ConvNet configurations 的一个 generic layout（Section 2.1）</li>
+<li>然后，再详述用于 evaluation 的 specific configurations（Section 2.2）</li>
+<li>我们在 Section 2.3 讨论我们的 design choices，并与前人的工作进行比较</li>
+</ul>
+<h2 id="2-1-Architecture"><a href="#2-1-Architecture" class="headerlink" title="2.1 Architecture"></a>2.1 Architecture</h2><p>在训练时，ConvNets 的 input 是一张 fixed-size 的 $224 \times 224$ 的 RGB image</p>
+<p>唯一的 pre-processing 是对每个 pixel 减去 mean RGB value</p>
+<ul>
+<li>mean RGB value 是在 training set 上计算出来的</li>
+</ul>
+<p>这张 image 会通过一叠 convolutional (conv.) layers</p>
+<ul>
+<li>layers 里的 filters 有着一个很小的 receptive field：$3 \times 3$ </li>
+<li>$3 \times 3$ 也是能够识别出左/右、上/下、中心这些概念的最小尺寸</li>
+</ul>
+<p>在其中一个 configuration 里，我们也利用了 $1 \times 1$ convolution filters</p>
+<ul>
+<li>它可以被看作是对 input channels 的 linear transformation</li>
+<li>它的后面跟着 non-linearity</li>
+</ul>
+<p>convolution 的 stride 被固定为 1 个 pixel</p>
+<p>conv. layer 的 spatial padding 需使得 spatial resolution 在 convolution 后仍保持不变</p>
+<ul>
+<li>换言之，对于 $3 \times 3$ conv. layers，padding 需是 1 个 pixel</li>
+</ul>
+<p>spatial pooling 由 5 个 max-pooling layers 来进行</p>
+<ul>
+<li>这些 max-pooling layers 跟在某些 conv. layers 的后面</li>
+<li>但不是所有 conv. layers 的后面都跟着 max-pooling</li>
+<li>max-pooling 以 2 个 pixel 的 stride 在 $2 \times 2$ 的 pixel window 上进行</li>
+</ul>
+<p>一叠 convolutional layers 的后面跟着 3 个 fully-connected (FC) layers</p>
+<ul>
+<li>这一叠 convolutional layers 在不同的 architectures 里有着不同的 depth</li>
+<li>前两个 FC layers 各有 4096 个 channels</li>
+<li><p>第三个 FC layer 进行了 1000-way ILSVRC classification，因此有 1000 个 channels</p>
+<ul>
+<li>一个 channel 对应一个 class</li>
+</ul>
+</li>
+<li><p>fully connected layers 的 configuration 在所有的 networks 里都是一样的</p>
+</li>
+</ul>
+<p>最后一个 layer 是 softmax layer</p>
+<p>所有 hidden layers 都配有 rectification（ReLU） non-linearity</p>
+<p>除了一个，我们的其余 networks 并没有进行 Local Response Normalisation (LRN)</p>
+<ul>
+<li>如 Section 4 所示，这样的 normalisation 并没有在 ILSVRC dataset 上带来性能上的提升</li>
+<li>反而导致了 memory consumption 与 computation time 的增加</li>
+<li>在适用时，LRN layer 的 parameters 就是其原文（Krizhevsky et al., 2012）的 parameters</li>
+</ul>
+<h2 id="2-2-Configurations"><a href="#2-2-Configurations" class="headerlink" title="2.2 Configurations"></a>2.2 Configurations</h2><p>Table 1 展示了本文 evaluate 的 ConvNet 的 configurations</p>
+<ul>
+<li>每一列就是一个 ConvNet 的 configurations</li>
+<li>接下来，我们将以它们的名字（A-E）来指代这些 nets</li>
+</ul>
+<p>所有的 configurations 都遵循 Section 2.1 所述的 generic design，只在 depth 上有所不同：</p>
+<ul>
+<li>从有 11 个 weight layers 的 network A 到有 19 个 weight layers 的 network E</li>
+<li>network A 有 11 个 weight layers，其中是 8 个 conv. layers 与 3 个 FC layers</li>
+<li>network E 有 19 个 weight layers，其中是 16 个 conv. layers 与 3 个 FC layers</li>
+</ul>
+<p>conv. layers 的 width 都相当小</p>
+<ul>
+<li>width 是指 channels 的数量</li>
+<li>起初在第一个 layer 时是 64，再在每个 max-pooling layer 之后翻倍，直到它达到 512</li>
+</ul>
+<p>Table 2 汇报了每个 configuration 的 parameters 的数量</p>
+<p>尽管有着 large depth，我们 nets 的 weights 的数量并没有多于某些 more shallow 的 net</p>
+<ul>
+<li>这些 more shallow 的 net 有着更大的 conv. layer widths 与更大的 receptive fields</li>
+<li>Sermanet et al., 2014 的 weights 有 144M</li>
+</ul>
+<h2 id="2-3-Discussion"><a href="#2-3-Discussion" class="headerlink" title="2.3 Discussion"></a>2.3 Discussion</h2><p>我们的 ConvNet configurations 非常不同于 competitions 里那些表现最佳的作品的 configurations</p>
+<ul>
+<li>ILSVRC-2012 competitions 的 Krizhevsky et al., 2012)</li>
+<li>ILSVRC-2013 competitions 的 Zeiler &amp; Fergus,2013 与 Sermanet et al., 2014</li>
+</ul>
+<p>我们在整个 net 里都使用很小的 $3 \times 3$ receptive fields</p>
+<ul>
+<li>以 stride 为 1 在 input 的每个 pixel 上进行 convolve</li>
+<li><p>而不是在最初的 conv. layers 里使用相对较大的 receptive fields，比如：</p>
+<ul>
+<li>Krizhevskyet al., 2012 的是 stride 为 4 的 $11 \times 11$</li>
+<li>Zeiler &amp; Fergus,2013 与 Sermanet et al., 2014 的是 stride 为 2 的 $7 \times 7$</li>
+</ul>
+</li>
+</ul>
+<p>一叠 2 个 $3 \times 3$ conv. layers 有着 $5 \times 5$ 的 effective receptive field</p>
+<ul>
+<li>这些 conv. layers 之间并没有 spatial pooling</li>
+<li>类似地，3 个这样的 layers 有着 $7 \times 7$ 的 effective receptive field</li>
+</ul>
+<p>若是用一叠 3 个 $3 \times 3$ conv. layers 而非 1 个 $7 \times 7$ layer，那么我们能得到什么呢？</p>
+<ul>
+<li><p>我们合并了 3 个（而非 1 个） non-linear rectification layers</p>
+<ul>
+<li>使得 decision function 更有辨别力</li>
+</ul>
+</li>
+<li><p>其次，我们减少了 parameters 的数量：</p>
+<ul>
+<li>假设 input 与 output 均有 $C$ 个 channels</li>
+<li>一叠 3 个 $3 \times 3$ conv. layers 需要 $3 \times 3^2 C^2 = 27 C^2$ 个 parameters / weights</li>
+<li>而 1 个 $7 \times 7$ layer 则需要 $7^2 C^2 = 49 C^2$ 个 parameters，即多了 81% </li>
+</ul>
+</li>
+<li><p>这可被看作是在 $7 \times 7$ conv. filters 上强加的 regularisation</p>
+<ul>
+<li>迫使它们能够通过 $3 \times 3$ filters 进行分解</li>
+<li>这些 $3 \times 3$ filters 之间被注入了 non-linearity</li>
+</ul>
+</li>
+</ul>
+<p>掺入 $1 \times 1$ conv. layers 可增加 decision function 的 non-linearity</p>
+<ul>
+<li>如 Table 1 的 configuration C 所示</li>
+<li>它并不影响 conv. layers 的 receptive fields</li>
+</ul>
+<p>我们的 $1 \times 1$ conv. layer 实际上是在相同维数的空间上的 linear projection</p>
+<ul>
+<li>因为 $1 \times 1$ conv. layer 的 input 与 output 有着相同数量的 channels</li>
+<li>然而，$1 \times 1$ conv. layer 之后的 rectification function 引入了额外的 non-linearity</li>
+</ul>
+<p>$1 \times 1$ conv. layers 也被用于 Lin et al. (2014) 的 “Network in Network” architecture</p>
+<p>Ciresan et al. (2011) 已经用过 small-size convolution filters</p>
+<ul>
+<li>但他们的 nets 远不及我们的深</li>
+<li>它们也没有在大型 ILSVRC dataset 上 evaluate</li>
+</ul>
+<p>Goodfellow et al. (2014) 在 street number recognition 的任务上应用了 deep ConvNets</p>
+<ul>
+<li>deep ConvNets 有着 11 个 weight layers</li>
+<li>文章展示了新增的 depth 带来了更好的 performance</li>
+</ul>
+<p>GoogLeNet (Szegedy et al., 2014) 是独立于我们的工作而开发的</p>
+<ul>
+<li>它是 ILSVRC-2014 classification 任务里表现最佳的作品之一</li>
+<li><p>它也类似地基于 very deep ConvNets 与 small convolution filters</p>
+<ul>
+<li>very deep ConvNets 有着 22 个 weight layers</li>
+<li>small convolution filters 里，除了有 $3 \times 3$，还有 $1 \times 1$ 与 $5 \times 5$</li>
+</ul>
+</li>
+<li><p>它的 network topology 却比我们的复杂</p>
+</li>
+<li>它在最初几层更积极地降低 feature maps 的 spatial resolution，以减少计算量</li>
+<li>如 Section 4.5 所示，我们的 model 在 single-network classification accuracy 方面比它更优胜</li>
+</ul>
+<h1 id="3-Classification-Framework"><a href="#3-Classification-Framework" class="headerlink" title="3 Classification Framework"></a>3 Classification Framework</h1><p>前一章节介绍了我们 network configurations 的细节</p>
+<p>这一章节将详述 classification ConvNet 的 training 与 evaluation</p>
+<h2 id="3-1-Training"><a href="#3-1-Training" class="headerlink" title="3.1 Training"></a>3.1 Training</h2><p>ConvNet 的 training 大体如 Krizhevsky et al. (2012) 所述</p>
+<ul>
+<li>除了在 multi-scale training images 上 sample 那些用作 input 的经裁剪的区域，稍后说明</li>
+<li><p>我们通过优化 multinomial logistic regression objective 来进行 training</p>
+<ul>
+<li>采用了基于 back-propagation (LeCun et al., 1989) 且带有 momentum 的 mini-batch gradient descent</li>
+</ul>
+</li>
+<li><p>batch size 设为 256，而 momentum 设为 0.9</p>
+</li>
+<li><p>training 被以下手段所 regularise</p>
+<ul>
+<li>weight decay，即 L2 penalty multiplier，被设为 $5 \dot 10^{−4}$</li>
+<li>前两个 fully-connected layers 有 dropout regularisation，dropout ratio 被设为 0.5</li>
+</ul>
+</li>
+<li><p>learning rate 初始为 $10^{-2}$</p>
+<ul>
+<li>然后，当 validation set 的 accuracy 不再提高时，learning rate 以 10 的倍数递减</li>
+<li>learning rate 总共被递减了 3 次</li>
+<li>learning 在 370K iterations (74 epochs) 之后停止了</li>
+</ul>
+<p>the larger number of parameters and the greater depth of our nets compared to (Krizhevsky et al., 2012), the nets required less epochs to converge due to </p>
+</li>
+</ul>
+<p>对比 Krizhevsky et al., 2012，我们的 nets 有着更多的 parameters 与更深的 depth</p>
+<ul>
+<li><p>但我们的 nets 需要更少的 epochs 来 converge，我们推测其原因是：</p>
+<ul>
+<li>由 greater depth 与 smaller conv. filter sizes 施加的 implicit regularisation</li>
+<li>某些 layers 的 pre-initialisation</li>
+</ul>
+</li>
+</ul>
+<p>network weights 的 initialisation 很重要</p>
+<ul>
+<li>因为不好的 initialisation 会使 learning 停滞不前（只因 gradient 在 deep nets 中不稳定）</li>
+</ul>
+<p>为了规避这个问题，</p>
+<ul>
+<li><p>我们先 train 的是Table 1 里的 configuration A</p>
+<ul>
+<li>它够浅，能以 random initialisation 来 train</li>
+</ul>
+</li>
+<li><p>然后，在 train 更深的 architectures 时，</p>
+<ul>
+<li>我们以 net A 的 layers 来 initialise 前面 4 个 conv. layers 与最后 3 个 FC layers</li>
+<li>其余的 intermediate layers 则是被随机地 initialise</li>
+<li>我们没有减少这些 pre-initialised layers 的 learning rate，让它们在 learning 有所改变</li>
+</ul>
+</li>
+</ul>
+<p>对于 random initialisation （在适用时），我们从 0 均值与 $10^{−2}$ 方差的正态分布中采样出 weights</p>
+<p>Biases 被初始化为 0</p>
+<p>值得注意的是，在本文提交后，我们发现，</p>
+<ul>
+<li>若是采用 Glorot &amp; Bengio (2010) 的 random initialisation 过程</li>
+<li>我们有可能可以 initialise 这些 weights 而无需进行 pre-training</li>
+</ul>
+<p>为了获得 fixed-size 的 $224 \times 224$ 的 ConvNet input images</p>
+<ul>
+<li>它们是从 rescaled training images 里被随机 crop 出来的</li>
+<li>对于每个 SGD iteration，每张 image 有一个 crop</li>
+</ul>
+<p>为了进一步地增强 training set，如 Krizhevsky et al., 2012 所述，我们对 crops 进行了</p>
+<ul>
+<li>random horizontal flipping</li>
+<li>random RGB colour shift</li>
+</ul>
+<p>Training image 的 rescaling 将在下面说明。</p>
+<p>关于 training image 的大小</p>
+<ul>
+<li>假设 $S$ 是一张 isotropically-rescaled training image 的最短边的长度</li>
+<li>ConvNet input 可以从这张 training image 中 crop 出来</li>
+<li>我们也称 $S$ 为 training scale</li>
+</ul>
+<p>当 crop 的大小被固定为 $224 \times 224$ 时，原则上 $S$ 可以是任何不小于 224 的数值：</p>
+<ul>
+<li><p>对于 $S = 224$，</p>
+<ul>
+<li>crop 将捕捉整张 image 的 statistics</li>
+<li>它能完全横跨一张 training image 的最短边</li>
+</ul>
+</li>
+<li><p>对于 $S \gg 224$,</p>
+<ul>
+<li>crop 将对应于 image 的一小部分，其中包含一个小物体或者某物体的一部分。</li>
+</ul>
+</li>
+</ul>
+<p>我们考察了两种方法来设定 training scale $S$</p>
+<p>第一种方法是固定 $S$，其对应于 single-scale training</p>
+<ul>
+<li>但在采样得到的 crops 里的 image content 仍能表示 multi-scale image statistics </li>
+</ul>
+<p>在我们的实验里，我们 evaluate 在两个固定尺寸上 train 的 models，分别是：</p>
+<ul>
+<li><p>$S = 256$，广泛被用于之前的工作</p>
+<ul>
+<li>Krizhevskyet al., 2012</li>
+<li>Zeiler &amp; Fergus, 2013</li>
+<li>Sermanet et al., 2014</li>
+</ul>
+</li>
+<li><p>$S = 384$</p>
+</li>
+</ul>
+<p>给定一个 ConvNet configuration，</p>
+<ul>
+<li>我们先以 $S = 256$ 来 train 这个 network</li>
+<li><p>为了加速 $S = 384$ network 的 training，</p>
+<ul>
+<li>我们用 pre-trained 的 $S = 256$ network 的 weights 来 initialise 它</li>
+<li>而且，我们使用一个更小的 initial learning rate，设为 $10^{-3}$ </li>
+</ul>
+</li>
+</ul>
+<p>第二种设定 $S$ 的方法是 multi-scale training</p>
+<ul>
+<li>每张 training image 各自在某个范围 $[S_{min}, S_{max}]$ 内随机采样出 $S$，再进行 rescale</li>
+<li>我们选用了 $S_{min} = 256$ 与 $S_{max} = 512$</li>
+</ul>
+<p>由于 image 里的 objects 有大有小，在 training 时考虑这一点是有益的</p>
+<p>这也可以看作是通过 scale jittering 来进行 training set 的 augmentation</p>
+<ul>
+<li>其中，单个 model 被 train 来识别多尺度的 objects</li>
+</ul>
+<p>出于对速度的考虑，</p>
+<ul>
+<li>我们通过 fine-tune 一个 single-scale model 的所有 layers 来 train 这个 multi-scale models</li>
+<li>single-scale model 与 multi-scale models 有着同样的 configuration</li>
+<li>single-scale model 使用了固定的 $S = 384$ 来进行 pre-train</li>
+</ul>
+<h2 id="3-2-Testing"><a href="#3-2-Testing" class="headerlink" title="3.2 Testing"></a>3.2 Testing</h2><p>在 test 时，给定一个 trained ConvNet 与一张 input image，这张 image 通过以下方式来被分类：</p>
+<ul>
+<li><p>首先，它先被 isotropically rescale，使得其最短边的长度达到某个预定义的值，记为 $Q$</p>
+<ul>
+<li>我们也称 $Q$ 为 test scale</li>
+<li>$Q$ 不一定等于 training scale $S$</li>
+<li>如 Section 4 所示，对每个 $S$ 使用多个 $Q$ 值可改善性能</li>
+</ul>
+</li>
+<li><p>然后，network 被密集地应用在 rescaled test image 上，类似于 Sermanet et al., 2014 所述</p>
+<ul>
+<li><p>fully-connected layers 先被转换为 convolutional layers</p>
+<ul>
+<li>第一个 FC layer 被转换为一个 $7 \times 7$ conv. layer</li>
+<li>后两个 FC layers 被转换为 $1 \times 1$ conv. layers</li>
+</ul>
+</li>
+<li><p>所得的 fully-convolutional net 然后被应用于整张未经 crop 的 image</p>
+</li>
+<li><p>最后得到一张 class score map</p>
+<ul>
+<li>channels 的数量等于 classes 的数量</li>
+<li>spatial resolution 是可变的，取决于 input image size</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>最后，为了获得一个固定大小的向量来表示这张 image 的 class scores</p>
+<ul>
+<li>这张 class score map 被 spatially averaged (sum-pooled)</li>
+<li>我们还通过对 images 进行 horizontal flipping 来增强 test set</li>
+<li>平均了原始图像与翻转图像的 soft-max class posteriors，可得 image 的最终 scores</li>
+</ul>
+</li>
+</ul>
+<p>因为 fully-convolutional network 被应用在整张 image 上，</p>
+<ul>
+<li>我们则无需在 test time 时采样多个 crops（如 Krizhevskyet al., 2012）</li>
+<li>这种做法的效率较低，因为它需要对每个 crop 进行 network 的重新计算</li>
+</ul>
+<p>同时，如 Szegedy et al.(2014) 所述，采用大量的 crops 能提高 accuracy</p>
+<ul>
+<li>因为，与 fully-convolutional net 相比，它可以对 input image 进行了更好的 sampling</li>
+</ul>
+<p>multi-crop evaluation 也是 dense evaluation 的补充，只因不同的 convolution 边界条件</p>
+<ul>
+<li>在应用 ConvNet 于一个 crop 时，convolved feature maps 被 pad 以 0</li>
+<li><p>在 dense evaluation 的情况下，对同一个 crop 的 padding 自然来自同张 image 的领域</p>
+<ul>
+<li>这点正是得益于 dense evaluation 的 convolutions 与 spatial pooling</li>
+<li>这大大增加了整个 network 的 receptive field，因此能捕获更多的 context</li>
+</ul>
+</li>
+</ul>
+<p>我们认为，实际上 multiple crops 在 accuracy 方面的潜在得益不足以抵偿其增加的 computation time</p>
+<ul>
+<li><p>但作为参考，我们也在每个 scale 上使用了 50 个 crops 来 evaluate 我们的 network</p>
+<ul>
+<li>即 $5 \times 5$ 的常规网格辅以 2 个 flips</li>
+<li>于是，在 3 个 scales 上共有 150 个 crops</li>
+</ul>
+</li>
+<li><p>与之相较的 Szegedy et al. (2014) 在 4 scales 上使用了 144 个 crops</p>
+</li>
+</ul>
+
+      
+       
+    </div>
+</article>
+
+
+<p></p>
+
+
+<div class="article_copyright">
+    <p><span class="copy-title">文章标题:</span>VGG</p>
+    <p><span class="copy-title">文章字数:</span><span class="post-count">3.1k</span></p>
+    <p><span class="copy-title">本文作者:</span><a href="javascript:void(0)" title="MapleFlying">MapleFlying</a></p>
+    <p><span class="copy-title">发布时间:</span>2019-09-22</p>
+    <p><span class="copy-title">最后更新:</span>2019-10-05</p>
+    <span class="copy-title">原始链接:</span><a class="post-url" href="/2019/VGG/" title="VGG">https://shzhao17.github.io/2019/VGG/</a>
+    <p>
+        <span class="copy-title">版权声明:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/" title="CC BY-NC-SA 4.0 International" target = "_blank">"署名-非商用-相同方式共享 4.0"</a> 转载请保留原文链接及作者。
+    </p>
+</div>
+
+
+
+
+
+    
+        <!-- MathJax配置，可通过单美元符号书写行内公式等 -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+    "HTML-CSS": {
+        preferredFont: "TeX",
+        availableFonts: ["STIX","TeX"],
+        linebreaks: { automatic:true },
+        EqnChunk: (MathJax.Hub.Browser.isMobile ? 10 : 50)
+    },
+    tex2jax: {
+        inlineMath: [ ["$", "$"], ["\\(","\\)"] ],
+        processEscapes: true,
+        ignoreClass: "tex2jax_ignore|dno",
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    },
+    TeX: {
+        equationNumbers: { autoNumber: "AMS" },
+        noUndefined: { attributes: { mathcolor: "red", mathbackground: "#FFEEEE", mathsize: "90%" } },
+        Macros: { href: "{}" }
+    },
+    messageStyle: "none"
+    });
+</script>
+<!-- 给MathJax元素添加has-jax class -->
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+<!-- 通过连接CDN加载MathJax的js代码 -->
+<script type="text/javascript"
+        src="//cdn.bootcss.com/mathjax/2.7.6/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+<input type="hidden" id="MathJax-js"
+        value="//cdn.bootcss.com/mathjax/2.7.6/MathJax.js?config=TeX-MML-AM_CHTML">
+</input>
+    
+
+
+
+
+    </div>
+    <div class="copyright">
+        <p class="footer-entry">©2019 shzhao17</p>
+<p class="footer-entry">Built with <a href="https://hexo.io/" target="_blank">Hexo</a> and <a href="https://github.com/yelog/hexo-theme-3-hexo" target="_blank">3-hexo</a> theme</p>
+
+    </div>
+    <div class="full-toc">
+        <button class="full"><span class="min "></span></button>
+<button class="post-toc-menu"><span class="post-toc-menu-icons"></span></button>
+<div class="post-toc"><span class="post-toc-title">目录</span>
+    <div class="post-toc-content">
+
+    </div>
+</div>
+<a class="" id="rocket" href="javascript:void(0)"></a>
+    </div>
+</div>
+<div class="acParent"></div>
+
+<div class="hide_box" onclick="dashangToggle()"></div>
+<div class="shang_box">
+    <a class="shang_close" href="javascript:void(0)" onclick="dashangToggle()">×</a>
+    <div class="shang_tit">
+    </div>
+    <div class="shang_payimg">
+        <div class="pay_img">
+        </div>
+    </div>
+    <div class="shang_payselect">
+    </div>
+</div><!-- hexo-inject:begin --><!-- Begin: Injected MathJax -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({"tex2jax":{"inlineMath":[["$","$"],["\\(","\\)"]],"skipTags":["script","noscript","style","textarea","pre","code"],"processEscapes":true},"TeX":{"equationNumbers":{"autoNumber":"AMS"}}});
+</script>
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+      all[i].SourceElement().parentNode.className += ' has-jax';
+    }
+  });
+</script>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js">
+</script>
+<!-- End: Injected MathJax -->
+<!-- hexo-inject:end -->
+
+
+</body>
+<script src="/js/jquery.pjax.js?v=1.0.1" ></script>
+
+<script src="/js/script.js?v=1.0.1" ></script>
+<script>
+    var img_resize = 'default';
+    /*作者、标签的自动补全*/
+    $(function () {
+        $('.search').AutoComplete({
+            'data': ['#Object Detection','#Image Classification','#Glossary',],
+            'itemHeight': 20,
+            'width': 418
+        }).AutoComplete('show');
+    })
+    function initArticle() {
+        /*渲染对应的表格样式*/
+        
+            $(".post .pjax table").addClass("green_title");
+        
+
+        /*渲染打赏样式*/
+        
+        $("input[name=pay]").on("click", function () {
+            if($("input[name=pay]:checked").val()=="weixin"){
+                $(".shang_box .shang_payimg .pay_img").addClass("weixin_img");
+            } else {
+                $(".shang_box .shang_payimg .pay_img").removeClass("weixin_img");
+            }
+        })
+        
+
+        /*高亮代码块行号*/
+        
+        $('pre code').each(function(){
+            var lines = $(this).text().split('\n').length - 1, widther='';
+            if (lines>99) {
+                widther = 'widther'
+            }
+            var $numbering = $('<ul/>').addClass('pre-numbering ' + widther).attr("unselectable","on");
+            $(this).addClass('has-numbering ' + widther)
+                    .parent()
+                    .append($numbering);
+            for(var i=1;i<=lines;i++){
+                $numbering.append($('<li/>').text(i));
+            }
+        });
+        
+
+        /*访问数量*/
+        
+        $.getScript("//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js");
+        
+
+        /*代码高亮，行号对齐*/
+        $('.pre-numbering').css('line-height',$('.has-numbering').css('line-height'));
+
+        
+    }
+
+    /*打赏页面隐藏与展示*/
+    
+    function dashangToggle() {
+        $(".shang_box").fadeToggle();
+        $(".hide_box").fadeToggle();
+    }
+    
+
+</script>
+
+<!--加入行号的高亮代码块样式-->
+
+<style>
+    pre{
+        position: relative;
+        margin-bottom: 24px;
+        border-radius: 10px;
+        border: 1px solid #e2dede;
+        background: #FFF;
+        overflow: hidden;
+    }
+    code.has-numbering{
+        margin-left: 30px;
+    }
+    code.has-numbering.widther{
+        margin-left: 35px;
+    }
+    .pre-numbering{
+        margin: 0px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 20px;
+        padding: 0.5em 3px 0.7em 5px;
+        border-right: 1px solid #C3CCD0;
+        text-align: right;
+        color: #AAA;
+        background-color: #fafafa;
+    }
+    .pre-numbering.widther {
+        width: 35px;
+    }
+</style>
+
+<!--自定义样式设置-->
+<style>
+    
+    
+    .nav {
+        width: 542px;
+    }
+    .nav.fullscreen {
+        margin-left: -542px;
+    }
+    .nav-left {
+        width: 120px;
+    }
+    
+    
+    @media screen and (max-width: 1468px) {
+        .nav {
+            width: 492px;
+        }
+        .nav.fullscreen {
+            margin-left: -492px;
+        }
+        .nav-left {
+            width: 100px;
+        }
+    }
+    
+    
+    @media screen and (max-width: 1024px) {
+        .nav {
+            width: 492px;
+            margin-left: -492px
+        }
+        .nav.fullscreen {
+            margin-left: 0;
+        }
+        .nav .hide-list.fullscreen {
+            left: 492px
+        }
+    }
+    
+    @media screen and (max-width: 426px) {
+        .nav {
+            width: 100%;
+        }
+        .nav-left {
+            width: 100%;
+        }
+    }
+    
+    
+    .nav-right .title-list nav a .post-title, .nav-right .title-list #local-search-result a .post-title {
+        color: #383636;
+    }
+    
+    
+    .nav-right .title-list nav a .post-date, .nav-right .title-list #local-search-result a .post-date {
+        color: #5e5e5f;
+    }
+    
+    
+    .nav-right nav a.hover, #local-search-result a.hover{
+        background-color: #e2e0e0;
+    }
+    
+    
+
+    /*列表样式*/
+    
+    .post .pjax article .article-entry>ol, .post .pjax article .article-entry>ul, .post .pjax article>ol, .post .pjax article>ul{
+        border: #e2dede solid 1px;
+        border-radius: 10px;
+        padding: 10px 32px 10px 56px;
+    }
+    .post .pjax article .article-entry li>ol, .post .pjax article .article-entry li>ul,.post .pjax article li>ol, .post .pjax article li>ul{
+        padding-top: 5px;
+        padding-bottom: 5px;
+    }
+    .post .pjax article .article-entry>ol>li, .post .pjax article .article-entry>ul>li,.post .pjax article>ol>li, .post .pjax article>ul>li{
+        margin-bottom: auto;
+        margin-left: auto;
+    }
+    .post .pjax article .article-entry li>ol>li, .post .pjax article .article-entry li>ul>li,.post .pjax article li>ol>li, .post .pjax article li>ul>li{
+        margin-bottom: auto;
+        margin-left: auto;
+    }
+    
+
+    /* 背景图样式 */
+    
+    
+
+
+    /*引用块样式*/
+    
+
+    /*文章列表背景图*/
+    
+    .nav-right:before {
+        content: ' ';
+        display: block;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.3;
+        background: url("https://i.loli.net/2019/07/22/5d3521411f3f169375.png");
+        background-repeat: no-repeat;
+        background-position: 50% 0;
+        -ms-background-size: cover;
+        -o-background-size: cover;
+        -moz-background-size: cover;
+        -webkit-background-size: cover;
+        background-size: cover;
+    }
+    
+
+    
+</style>
+
+
+
+
+
+
+
+</html>
